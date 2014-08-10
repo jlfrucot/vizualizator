@@ -2,6 +2,8 @@
 #define VIZUALIZATORWIDGET_H
 
 #include <QWidget>
+#include <QMessageBox>
+#include <QCloseEvent>
 #include <QMediaService>
 #include <QMediaRecorder>
 #include <QCameraViewfinder>
@@ -24,6 +26,18 @@ public:
     inline QActionGroup * vizualizatorWidgetGetVideoDevicesGroup(){return m_videoDevicesGroup;}
 private slots:
     void updateCameraDevice(QAction *action);
+    void updateCaptureMode();
+    void updateCameraState(QCamera::State state);
+    void updateRecorderState(QMediaRecorder::State state);
+    void updateRecordTime();
+    void updateLockStatus(QCamera::LockStatus status, QCamera::LockChangeReason reason);
+    void processCapturedImage(int requestId, const QImage &img);
+    void displayCaptureError(int id, const QCameraImageCapture::Error error, const QString &errorString);
+    void displayRecorderError();
+    void displayCameraError();
+    void readyForCapture(bool ready);
+    void imageSaved(int id, const QString &fileName);
+    void closeEvent(QCloseEvent *event);
 private:
     bool m_localDebug;
     Ui::VizualizatorWidget *ui;
@@ -47,16 +61,9 @@ private:
     void stop();
     void setMuted(bool muted);
     void toggleLock();
-    void updateLockStatus(QCamera::LockStatus status, QCamera::LockChangeReason reason);
     void takeImage();
-    void displayCaptureError(int id, const QCameraImageCapture::Error error, const QString &errorString);
     void startCamera();
     void stopCamera();
-    void updateCaptureMode();
-    void updateCameraState(QCamera::State state);
-    void updateRecorderState(QMediaRecorder::State state);
-    void updateRecordTime();
-    void processCapturedImage(int requestId, const QImage &img);
 };
 
 #endif // VIZUALIZATORWIDGET_H

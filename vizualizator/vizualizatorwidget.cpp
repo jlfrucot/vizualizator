@@ -291,3 +291,37 @@ void VizualizatorWidget::updateRecorderState(QMediaRecorder::State state)
 //        break;
 //    }
 }
+void VizualizatorWidget::displayRecorderError()
+{
+    QMessageBox::warning(this, tr("Capture error"), m_mediaRecorder->errorString());
+}
+
+void VizualizatorWidget::displayCameraError()
+{
+    QMessageBox::warning(this, tr("Camera error"), m_camera->errorString());
+}
+void VizualizatorWidget::readyForCapture(bool ready)
+{
+//    ui->takeImageButton->setEnabled(ready);
+}
+
+void VizualizatorWidget::imageSaved(int id, const QString &fileName)
+{
+    Q_UNUSED(id);
+    Q_UNUSED(fileName);
+
+    m_isCapturingImage = false;
+    if (m_applicationExiting)
+        close();
+}
+
+void VizualizatorWidget::closeEvent(QCloseEvent *event)
+{
+    if (m_isCapturingImage) {
+        setEnabled(false);
+        m_applicationExiting = true;
+        event->ignore();
+    } else {
+        event->accept();
+    }
+}
