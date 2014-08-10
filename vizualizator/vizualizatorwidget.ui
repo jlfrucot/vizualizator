@@ -18,6 +18,12 @@
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
       <widget class="QDockWidget" name="dwToolPanel">
+       <property name="minimumSize">
+        <size>
+         <width>200</width>
+         <height>209</height>
+        </size>
+       </property>
        <property name="maximumSize">
         <size>
          <width>200</width>
@@ -73,6 +79,14 @@
             </attribute>
            </widget>
            <widget class="QWidget" name="pageVideoSettings">
+            <property name="geometry">
+             <rect>
+              <x>0</x>
+              <y>0</y>
+              <width>182</width>
+              <height>253</height>
+             </rect>
+            </property>
             <attribute name="label">
              <string>Paramètres vidéo</string>
             </attribute>
@@ -95,6 +109,11 @@
         <attribute name="title">
          <string>Caméra 1</string>
         </attribute>
+        <layout class="QVBoxLayout" name="verticalLayout_3">
+         <item>
+          <widget class="QCameraViewfinder" name="viewfinder" native="true"/>
+         </item>
+        </layout>
        </widget>
        <widget class="QWidget" name="tabGallery">
         <attribute name="title">
@@ -107,6 +126,14 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QCameraViewfinder</class>
+   <extends>QWidget</extends>
+   <header>qcameraviewfinder.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

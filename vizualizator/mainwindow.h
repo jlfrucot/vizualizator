@@ -2,6 +2,9 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QAction>
+#include <QActionGroup>
+#include "vizualizatorwidget.h"
 
 namespace Ui {
 class MainWindow;
