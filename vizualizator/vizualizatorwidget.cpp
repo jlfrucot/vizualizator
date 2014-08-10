@@ -71,10 +71,13 @@ void VizualizatorWidget::setCamera(const QByteArray &cameraDevice)
     delete m_camera;
 
     if (cameraDevice.isEmpty())
+    {
         m_camera = new QCamera;
+    }
     else
+    {
         m_camera = new QCamera(cameraDevice);
-
+    }
     connect(m_camera, SIGNAL(stateChanged(QCamera::State)), this, SLOT(updateCameraState(QCamera::State)));
     connect(m_camera, SIGNAL(error(QCamera::Error)), this, SLOT(displayCameraError()));
 
@@ -114,6 +117,7 @@ void VizualizatorWidget::updateCameraDevice(QAction *action)
 {
      if (m_localDebug) qDebug()<<" ++++++++ " << __FUNCTION__<<action->text();
     setCamera(action->data().toByteArray());
+        ui->lbCameraName->setText(action->text());
 }
 void VizualizatorWidget::updateRecordTime()
 {

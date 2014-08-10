@@ -45,6 +45,35 @@
         <attribute name="label">
          <string>Caméra</string>
         </attribute>
+        <layout class="QVBoxLayout" name="verticalLayout_4">
+         <item>
+          <layout class="QVBoxLayout" name="verticalLayout_2">
+           <item>
+            <widget class="QLabel" name="lbCameraName">
+             <property name="text">
+              <string>Caméra par défaut</string>
+             </property>
+             <property name="wordWrap">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <spacer name="verticalSpacer">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>40</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
+         </item>
+        </layout>
        </widget>
        <widget class="QWidget" name="pageImagesSettings">
         <property name="geometry">
@@ -84,7 +113,7 @@
        </property>
        <widget class="QWidget" name="tabCamera1">
         <attribute name="title">
-         <string>Caméra 1</string>
+         <string>Caméra</string>
         </attribute>
         <layout class="QVBoxLayout" name="verticalLayout_3">
          <item>
