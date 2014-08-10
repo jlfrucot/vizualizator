@@ -1,21 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <author/>
- <comment/>
- <exportmacro/>
  <class>VizualizatorWidget</class>
  <widget class="QWidget" name="VizualizatorWidget">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>300</height>
+    <width>832</width>
+    <height>409</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QDockWidget" name="dwToolPanel">
+       <property name="maximumSize">
+        <size>
+         <width>200</width>
+         <height>524287</height>
+        </size>
+       </property>
+       <property name="features">
+        <set>QDockWidget::AllDockWidgetFeatures</set>
+       </property>
+       <property name="allowedAreas">
+        <set>Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea</set>
+       </property>
+       <property name="windowTitle">
+        <string>Boite à outils</string>
+       </property>
+       <widget class="QWidget" name="dockWidgetContents">
+        <layout class="QVBoxLayout" name="verticalLayout_2">
+         <item>
+          <widget class="QToolBox" name="tbToolPanel">
+           <property name="maximumSize">
+            <size>
+             <width>200</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="currentIndex">
+            <number>0</number>
+           </property>
+           <widget class="QWidget" name="pageCamera">
+            <property name="geometry">
+             <rect>
+              <x>0</x>
+              <y>0</y>
+              <width>182</width>
+              <height>253</height>
+             </rect>
+            </property>
+            <attribute name="label">
+             <string>Caméra</string>
+            </attribute>
+           </widget>
+           <widget class="QWidget" name="pageImagesSettings">
+            <property name="geometry">
+             <rect>
+              <x>0</x>
+              <y>0</y>
+              <width>182</width>
+              <height>253</height>
+             </rect>
+            </property>
+            <attribute name="label">
+             <string>Paramètres images</string>
+            </attribute>
+           </widget>
+           <widget class="QWidget" name="pageVideoSettings">
+            <attribute name="label">
+             <string>Paramètres vidéo</string>
+            </attribute>
+           </widget>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </widget>
+     </item>
+     <item>
+      <widget class="QTabWidget" name="tabWidget">
+       <property name="currentIndex">
+        <number>0</number>
+       </property>
+       <property name="elideMode">
+        <enum>Qt::ElideMiddle</enum>
+       </property>
+       <widget class="QWidget" name="tabCamera1">
+        <attribute name="title">
+         <string>Caméra 1</string>
+        </attribute>
+       </widget>
+       <widget class="QWidget" name="tabGallery">
+        <attribute name="title">
+         <string>Galerie</string>
+        </attribute>
+       </widget>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
  </widget>
- <pixmapfunction/>
+ <resources/>
  <connections/>
 </ui>
