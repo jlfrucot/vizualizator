@@ -38,6 +38,9 @@ private slots:
     void readyForCapture(bool ready);
     void imageSaved(int id, const QString &fileName);
     void closeEvent(QCloseEvent *event);
+    void on_btnTakePicture_clicked();
+    void slotReadyForCapture(bool ready);
+    void slotImageExposed(int id);
 private:
     bool m_localDebug;
     Ui::VizualizatorWidget *ui;
