@@ -38,15 +38,20 @@ VizualizatorWidget::VizualizatorWidget(QWidget *parent) :
 {
     m_localDebug = true;
     ui->setupUi(this);
-
+    m_transform.reset();
     m_scene = new QGraphicsScene();
     ui->gvCameraView->setScene(m_scene);
     ui->gvCameraView->setSceneRect(0,0, ui->gvCameraView->width(), ui->gvCameraView->height());
+
+
     m_viewfinder = new QGraphicsVideoItem();
     m_scene->addItem(m_viewfinder);
     m_viewfinder->setSize(ui->gvCameraView->size());
     m_viewfinder->setTransformOriginPoint(m_viewfinder->boundingRect().center());
-    m_viewfinder->setRotation(100);
+
+    m_transform.rotate(180, Qt::YAxis);
+    m_transform.translate(-m_viewfinder->boundingRect().width(), 0);
+    m_viewfinder->setTransform(m_transform);
     /* On fait la liste des Camera devices:
      * On les place aussi dans un QActionGroup
      * que l'on pourra utiliser pour mettre dans un menu par exemple

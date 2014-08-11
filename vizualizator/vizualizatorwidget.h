@@ -2,6 +2,7 @@
 #define VIZUALIZATORWIDGET_H
 
 #include <QWidget>
+#include <QTransform>
 #include <QMessageBox>
 #include <QCloseEvent>
 #include <QMediaService>
@@ -52,6 +53,7 @@ private:
     QGraphicsVideoItem *m_viewfinder;
     QMediaRecorder* m_mediaRecorder;
 
+    QTransform m_transform;
     QImageEncoderSettings m_imageSettings;
     QAudioEncoderSettings m_audioSettings;
     QVideoEncoderSettings m_videoSettings;
