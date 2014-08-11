@@ -33,7 +33,14 @@
         </attribute>
         <layout class="QVBoxLayout" name="verticalLayout_3">
          <item>
-          <widget class="QCameraViewfinder" name="viewfinder" native="true"/>
+          <widget class="QGraphicsView" name="gvCameraView">
+           <property name="verticalScrollBarPolicy">
+            <enum>Qt::ScrollBarAlwaysOff</enum>
+           </property>
+           <property name="horizontalScrollBarPolicy">
+            <enum>Qt::ScrollBarAlwaysOff</enum>
+           </property>
+          </widget>
          </item>
         </layout>
        </widget>
@@ -115,8 +122,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>200</width>
-          <height>556</height>
+          <width>98</width>
+          <height>28</height>
          </rect>
         </property>
         <attribute name="label">
@@ -128,8 +135,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>200</width>
-          <height>556</height>
+          <width>98</width>
+          <height>28</height>
          </rect>
         </property>
         <attribute name="label">
@@ -142,14 +149,6 @@
    </item>
   </layout>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>QCameraViewfinder</class>
-   <extends>QWidget</extends>
-   <header>qcameraviewfinder.h</header>
-   <container>1</container>
-  </customwidget>
- </customwidgets>
  <resources/>
  <connections/>
 </ui>

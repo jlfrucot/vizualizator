@@ -7,6 +7,8 @@
 #include <QMediaService>
 #include <QMediaRecorder>
 #include <QCameraViewfinder>
+#include <QGraphicsScene>
+#include <QGraphicsVideoItem>
 #include <QCameraImageCapture>
 #include <QMediaMetaData>
 #include <QActionGroup>
@@ -44,8 +46,10 @@ private slots:
 private:
     bool m_localDebug;
     Ui::VizualizatorWidget *ui;
+    QGraphicsScene *m_scene;
     QCamera *m_camera;
     QCameraImageCapture *m_imageCapture;
+    QGraphicsVideoItem *m_viewfinder;
     QMediaRecorder* m_mediaRecorder;
 
     QImageEncoderSettings m_imageSettings;

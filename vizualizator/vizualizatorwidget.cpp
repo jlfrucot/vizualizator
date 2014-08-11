@@ -28,8 +28,10 @@
 VizualizatorWidget::VizualizatorWidget(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::VizualizatorWidget),
+    m_scene(0),
     m_camera(0),
     m_imageCapture(0),
+    m_viewfinder(0),
     m_mediaRecorder(0),
     m_isCapturingImage(false),
     m_applicationExiting(false)
@@ -37,6 +39,14 @@ VizualizatorWidget::VizualizatorWidget(QWidget *parent) :
     m_localDebug = true;
     ui->setupUi(this);
 
+    m_scene = new QGraphicsScene();
+    ui->gvCameraView->setScene(m_scene);
+    ui->gvCameraView->setSceneRect(0,0, ui->gvCameraView->width(), ui->gvCameraView->height());
+    m_viewfinder = new QGraphicsVideoItem();
+    m_scene->addItem(m_viewfinder);
+    m_viewfinder->setSize(ui->gvCameraView->size());
+    m_viewfinder->setTransformOriginPoint(m_viewfinder->boundingRect().center());
+    m_viewfinder->setRotation(100);
     /* On fait la liste des Camera devices:
      * On les place aussi dans un QActionGroup
      * que l'on pourra utiliser pour mettre dans un menu par exemple
@@ -65,6 +75,7 @@ VizualizatorWidget::VizualizatorWidget(QWidget *parent) :
     connect(m_videoDevicesGroup, SIGNAL(triggered(QAction*)), SLOT(updateCameraDevice(QAction*)));
 
     setCamera(cameraDevice);
+
 }
 
 VizualizatorWidget::~VizualizatorWidget()
@@ -111,7 +122,7 @@ void VizualizatorWidget::setCamera(const QByteArray &cameraDevice)
             SLOT(displayCaptureError(int,QCameraImageCapture::Error,QString)));
 
     /* On affiche la caméra dans le bon widget */
-    m_camera->setViewfinder(ui->viewfinder);
+    m_camera->setViewfinder(m_viewfinder);
 
     updateCameraState(m_camera->state());
     updateLockStatus(m_camera->lockStatus(), QCamera::UserRequest);
@@ -140,7 +151,7 @@ void VizualizatorWidget::processCapturedImage(int requestId, const QImage& img)
 {
     if (m_localDebug) qDebug()<<" ++++++++ " << __FUNCTION__;
     Q_UNUSED(requestId);
-    QImage scaledImage = img.scaled(ui->viewfinder->size(),
+    QImage scaledImage = img.scaled(m_viewfinder->size().toSize(),
                                     Qt::KeepAspectRatio,
                                     Qt::SmoothTransformation);
 
@@ -376,8 +387,10 @@ void VizualizatorWidget::imageSaved(int id, const QString &fileName)
     Q_UNUSED(fileName);
 
     m_isCapturingImage = false;
+    
     if (m_applicationExiting)
         close();
+    
 }
 
 void VizualizatorWidget::closeEvent(QCloseEvent *event)
