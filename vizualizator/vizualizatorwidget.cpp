@@ -37,16 +37,22 @@ VizualizatorWidget::VizualizatorWidget(QWidget *parent) :
     m_localDebug = true;
     ui->setupUi(this);
 
-    //Camera devices:
+    /* On fait la liste des Camera devices:
+     * On les place aussi dans un QActionGroup
+     * que l'on pourra utiliser pour mettre dans un menu par exemple
+     * voir (vizualizatorWidgetGetVideoDevicesGroup()
+     */
     QByteArray cameraDevice;
     m_videoDevicesGroup = new QActionGroup(this);
     m_videoDevicesGroup->setExclusive(true);
+    /* On crée les QAction correspondant à chaque caméra */
     foreach(const QByteArray &deviceName, QCamera::availableDevices())
     {
         QString description = m_camera->deviceDescription(deviceName);
         QAction *videoDeviceAction = new QAction(description, m_videoDevicesGroup);
         videoDeviceAction->setCheckable(true);
         videoDeviceAction->setData(QVariant(deviceName));
+        /* La caméra par défaut */
         if (cameraDevice.isEmpty())
         {
             cameraDevice = deviceName;
@@ -55,9 +61,10 @@ VizualizatorWidget::VizualizatorWidget(QWidget *parent) :
         }
 
     }
-connect(m_videoDevicesGroup, SIGNAL(triggered(QAction*)), SLOT(updateCameraDevice(QAction*)));
+    /* Pour changer de caméra */
+    connect(m_videoDevicesGroup, SIGNAL(triggered(QAction*)), SLOT(updateCameraDevice(QAction*)));
 
-setCamera(cameraDevice);
+    setCamera(cameraDevice);
 }
 
 VizualizatorWidget::~VizualizatorWidget()
@@ -67,10 +74,14 @@ VizualizatorWidget::~VizualizatorWidget()
 
 void VizualizatorWidget::setCamera(const QByteArray &cameraDevice)
 {
-    delete m_imageCapture;
-    delete m_mediaRecorder;
-    delete m_camera;
+    /* On détruit les éventuels objects devenus obsoletes */
+    m_imageCapture->deleteLater();
+    m_mediaRecorder->deleteLater();
+    m_camera->deleteLater();
 
+    /* On crée ce dont on a besoin */
+
+    /* Une camera */
     if (cameraDevice.isEmpty())
     {
         m_camera = new QCamera;
@@ -82,51 +93,47 @@ void VizualizatorWidget::setCamera(const QByteArray &cameraDevice)
     connect(m_camera, SIGNAL(stateChanged(QCamera::State)), this, SLOT(updateCameraState(QCamera::State)));
     connect(m_camera, SIGNAL(error(QCamera::Error)), this, SLOT(displayCameraError()));
 
+    /* Un recorder pour enregistrer la vidéo */
     m_mediaRecorder = new QMediaRecorder(m_camera);
+    m_mediaRecorder->setMetaData(QMediaMetaData::Title, QVariant(QLatin1String("Test Title")));
     connect(m_mediaRecorder, SIGNAL(stateChanged(QMediaRecorder::State)), this, SLOT(updateRecorderState(QMediaRecorder::State)));
-
-    m_imageCapture = new QCameraImageCapture(m_camera);
-    connect(m_imageCapture, SIGNAL(readyForCaptureChanged(bool)), this, SLOT(slotReadyForCapture(bool)), Qt::UniqueConnection);
-    connect(m_imageCapture, SIGNAL(imageExposed(int)), this, SLOT(slotImageExposed(int)), Qt::UniqueConnection);
     connect(m_mediaRecorder, SIGNAL(durationChanged(qint64)), this, SLOT(updateRecordTime()));
     connect(m_mediaRecorder, SIGNAL(error(QMediaRecorder::Error)), this, SLOT(displayRecorderError()));
 
-    m_mediaRecorder->setMetaData(QMediaMetaData::Title, QVariant(QLatin1String("Test Title")));
+    /* Un "captureur" d'images */
+    m_imageCapture = new QCameraImageCapture(m_camera);
+    connect(m_imageCapture, SIGNAL(readyForCaptureChanged(bool)), this, SLOT(slotReadyForCapture(bool)), Qt::UniqueConnection);
+    connect(m_imageCapture, SIGNAL(imageExposed(int)), this, SLOT(slotImageExposed(int)), Qt::UniqueConnection);
+//    connect(m_imageCapture, SIGNAL(readyForCaptureChanged(bool)), this, SLOT(readyForCapture(bool)));
+    connect(m_imageCapture, SIGNAL(imageCaptured(int,QImage)), this, SLOT(processCapturedImage(int,QImage)));
+    connect(m_imageCapture, SIGNAL(imageSaved(int,QString)), this, SLOT(imageSaved(int,QString)));
+    connect(m_imageCapture, SIGNAL(error(int,QCameraImageCapture::Error,QString)), this,
+            SLOT(displayCaptureError(int,QCameraImageCapture::Error,QString)));
 
-
+    /* On affiche la caméra dans le bon widget */
     m_camera->setViewfinder(ui->viewfinder);
 
     updateCameraState(m_camera->state());
     updateLockStatus(m_camera->lockStatus(), QCamera::UserRequest);
     updateRecorderState(m_mediaRecorder->state());
 
-    connect(m_imageCapture, SIGNAL(readyForCaptureChanged(bool)), this, SLOT(readyForCapture(bool)));
-    connect(m_imageCapture, SIGNAL(imageCaptured(int,QImage)), this, SLOT(processCapturedImage(int,QImage)));
-    connect(m_imageCapture, SIGNAL(imageSaved(int,QString)), this, SLOT(imageSaved(int,QString)));
-    connect(m_imageCapture, SIGNAL(error(int,QCameraImageCapture::Error,QString)), this,
-            SLOT(displayCaptureError(int,QCameraImageCapture::Error,QString)));
-
-    qDebug()<<m_imageCapture->supportedResolutions();
     connect(m_camera, SIGNAL(lockStatusChanged(QCamera::LockStatus, QCamera::LockChangeReason)),
             this, SLOT(updateLockStatus(QCamera::LockStatus, QCamera::LockChangeReason)));
-
-//    ui->captureWidget->setTabEnabled(0, (camera->isCaptureModeSupported(QCamera::CaptureStillImage)));
-//    ui->captureWidget->setTabEnabled(1, (camera->isCaptureModeSupported(QCamera::CaptureVideo)));
 
     updateCaptureMode();
     m_camera->start();
 }
 void VizualizatorWidget::updateCameraDevice(QAction *action)
 {
-     if (m_localDebug) qDebug()<<" ++++++++ " << __FUNCTION__<<action->text();
+    if (m_localDebug) qDebug()<<" ++++++++ " << __FUNCTION__<<action->text();
     setCamera(action->data().toByteArray());
-        ui->lbCameraName->setText(action->text());
+    ui->lbCameraName->setText(action->text());
 }
 void VizualizatorWidget::updateRecordTime()
 {
     if (m_localDebug) qDebug()<<" ++++++++ " << __FUNCTION__;
     QString str = QString("Recorded %1 sec").arg(m_mediaRecorder->duration()/1000);
-//    ui->statusbar->showMessage(str);
+    //    ui->statusbar->showMessage(str);
 }
 
 void VizualizatorWidget::processCapturedImage(int requestId, const QImage& img)
@@ -137,11 +144,11 @@ void VizualizatorWidget::processCapturedImage(int requestId, const QImage& img)
                                     Qt::KeepAspectRatio,
                                     Qt::SmoothTransformation);
 
-//    ui->lastImagePreviewLabel->setPixmap(QPixmap::fromImage(scaledImage));
+    //    ui->lastImagePreviewLabel->setPixmap(QPixmap::fromImage(scaledImage));
 
-//    // Display captured image for 4 seconds.
-//    displayCapturedImage();
-//    QTimer::singleShot(4000, this, SLOT(displayViewfinder()));
+    //    // Display captured image for 4 seconds.
+    //    displayCapturedImage();
+    //    QTimer::singleShot(4000, this, SLOT(displayViewfinder()));
 }
 
 void VizualizatorWidget::configureCaptureSettings()
@@ -162,35 +169,35 @@ void VizualizatorWidget::configureCaptureSettings()
 void VizualizatorWidget::configureVideoSettings()
 {
     if (m_localDebug) qDebug()<<" ++++++++ " << __FUNCTION__;
-//    VideoSettings settingsDialog(mediaRecorder);
+    //    VideoSettings settingsDialog(mediaRecorder);
 
-//    settingsDialog.setAudioSettings(audioSettings);
-//    settingsDialog.setVideoSettings(videoSettings);
-//    settingsDialog.setFormat(videoContainerFormat);
+    //    settingsDialog.setAudioSettings(audioSettings);
+    //    settingsDialog.setVideoSettings(videoSettings);
+    //    settingsDialog.setFormat(videoContainerFormat);
 
-//    if (settingsDialog.exec()) {
-//        audioSettings = settingsDialog.audioSettings();
-//        videoSettings = settingsDialog.videoSettings();
-//        videoContainerFormat = settingsDialog.format();
+    //    if (settingsDialog.exec()) {
+    //        audioSettings = settingsDialog.audioSettings();
+    //        videoSettings = settingsDialog.videoSettings();
+    //        videoContainerFormat = settingsDialog.format();
 
-//        mediaRecorder->setEncodingSettings(
-//                    audioSettings,
-//                    videoSettings,
-//                    videoContainerFormat);
-//    }
+    //        mediaRecorder->setEncodingSettings(
+    //                    audioSettings,
+    //                    videoSettings,
+    //                    videoContainerFormat);
+    //    }
 }
 
 void VizualizatorWidget::configureImageSettings()
 {
     if (m_localDebug) qDebug()<<" ++++++++ " << __FUNCTION__;
-//    ImageSettings settingsDialog(imageCapture);
+    //    ImageSettings settingsDialog(imageCapture);
 
-//    settingsDialog.setImageSettings(imageSettings);
+    //    settingsDialog.setImageSettings(imageSettings);
 
-//    if (settingsDialog.exec()) {
-//        m_imageSettings = settingsDialog.imageSettings();
-//        m_imageCapture->setEncodingSettings(imageSettings);
-//    }
+    //    if (settingsDialog.exec()) {
+    //        m_imageSettings = settingsDialog.imageSettings();
+    //        m_imageCapture->setEncodingSettings(imageSettings);
+    //    }
 }
 
 void VizualizatorWidget::record()
@@ -292,8 +299,10 @@ void VizualizatorWidget::stopCamera()
 void VizualizatorWidget::updateCaptureMode()
 {
     if (m_localDebug) qDebug()<<" ++++++++ " << __FUNCTION__;
-//    int tabIndex = ui->captureWidget->currentIndex();
-//    QCamera::CaptureModes captureMode = tabIndex == 0 ? QCamera::CaptureStillImage : QCamera::CaptureVideo;
+    //    int tabIndex = ui->captureWidget->currentIndex();
+    //    QCamera::CaptureModes captureMode = tabIndex == 0 ? QCamera::CaptureStillImage : QCamera::CaptureVideo;
+
+    /* Pour l'instant on ne prend que des images */
     QCamera::CaptureModes captureMode = QCamera::CaptureStillImage;
 
     if (m_camera->isCaptureModeSupported(captureMode))
@@ -307,41 +316,41 @@ void VizualizatorWidget::updateCameraState(QCamera::State state)
     if (m_localDebug) qDebug()<<" ++++++++ " << __FUNCTION__;
     switch (state) {
     case QCamera::ActiveState:
-//        ui->actionStartCamera->setEnabled(false);
-//        ui->actionStopCamera->setEnabled(true);
-//        ui->captureWidget->setEnabled(true);
-//        ui->actionSettings->setEnabled(true);
+        //        ui->actionStartCamera->setEnabled(false);
+        //        ui->actionStopCamera->setEnabled(true);
+        //        ui->captureWidget->setEnabled(true);
+        //        ui->actionSettings->setEnabled(true);
         break;
     case QCamera::UnloadedState:
     case QCamera::LoadedState:
-//        ui->actionStartCamera->setEnabled(true);
-//        ui->actionStopCamera->setEnabled(false);
-//        ui->captureWidget->setEnabled(false);
-//        ui->actionSettings->setEnabled(false);
-    break;
+        //        ui->actionStartCamera->setEnabled(true);
+        //        ui->actionStopCamera->setEnabled(false);
+        //        ui->captureWidget->setEnabled(false);
+        //        ui->actionSettings->setEnabled(false);
+        break;
     }
 }
 
 void VizualizatorWidget::updateRecorderState(QMediaRecorder::State state)
 {
     if (m_localDebug) qDebug()<<" ++++++++ " << __FUNCTION__;
-//    switch (state) {
-//    case QMediaRecorder::StoppedState:
-//        ui->recordButton->setEnabled(true);
-//        ui->pauseButton->setEnabled(true);
-//        ui->stopButton->setEnabled(false);
-//        break;
-//    case QMediaRecorder::PausedState:
-//        ui->recordButton->setEnabled(true);
-//        ui->pauseButton->setEnabled(false);
-//        ui->stopButton->setEnabled(true);
-//        break;
-//    case QMediaRecorder::RecordingState:
-//        ui->recordButton->setEnabled(false);
-//        ui->pauseButton->setEnabled(true);
-//        ui->stopButton->setEnabled(true);
-//        break;
-//    }
+    //    switch (state) {
+    //    case QMediaRecorder::StoppedState:
+    //        ui->recordButton->setEnabled(true);
+    //        ui->pauseButton->setEnabled(true);
+    //        ui->stopButton->setEnabled(false);
+    //        break;
+    //    case QMediaRecorder::PausedState:
+    //        ui->recordButton->setEnabled(true);
+    //        ui->pauseButton->setEnabled(false);
+    //        ui->stopButton->setEnabled(true);
+    //        break;
+    //    case QMediaRecorder::RecordingState:
+    //        ui->recordButton->setEnabled(false);
+    //        ui->pauseButton->setEnabled(true);
+    //        ui->stopButton->setEnabled(true);
+    //        break;
+    //    }
 }
 void VizualizatorWidget::displayRecorderError()
 {
@@ -354,11 +363,11 @@ void VizualizatorWidget::displayCameraError()
     if (m_localDebug) qDebug()<<" ++++++++ " << __FUNCTION__;
     QMessageBox::warning(this, tr("Camera error"), m_camera->errorString());
 }
-void VizualizatorWidget::readyForCapture(bool ready)
-{
-//    if (m_localDebug) qDebug()<<" ++++++++ " << __FUNCTION__;
-//    ui->btnTakePicture->setEnabled(ready);
-}
+//void VizualizatorWidget::readyForCapture(bool ready)
+//{
+//    //    if (m_localDebug) qDebug()<<" ++++++++ " << __FUNCTION__;
+//    //    ui->btnTakePicture->setEnabled(ready);
+//}
 
 void VizualizatorWidget::imageSaved(int id, const QString &fileName)
 {
@@ -374,11 +383,14 @@ void VizualizatorWidget::imageSaved(int id, const QString &fileName)
 void VizualizatorWidget::closeEvent(QCloseEvent *event)
 {
     if (m_localDebug) qDebug()<<" ++++++++ " << __FUNCTION__;
-    if (m_isCapturingImage) {
+    if (m_isCapturingImage)
+    {
         setEnabled(false);
         m_applicationExiting = true;
         event->ignore();
-    } else {
+    }
+    else
+    {
         event->accept();
     }
 }

@@ -35,7 +35,7 @@ private slots:
     void displayCaptureError(int id, const QCameraImageCapture::Error error, const QString &errorString);
     void displayRecorderError();
     void displayCameraError();
-    void readyForCapture(bool ready);
+//    void readyForCapture(bool ready);
     void imageSaved(int id, const QString &fileName);
     void closeEvent(QCloseEvent *event);
     void on_btnTakePicture_clicked();
