@@ -44,6 +44,16 @@ private slots:
     void on_btnTakePicture_clicked();
     void slotReadyForCapture(bool ready);
     void slotImageExposed(int id);
+    void on_dialOrientation_valueChanged(int value);
+
+    void on_rbRotate0deg_clicked(bool checked);
+
+    void on_rbRotate90deg_clicked(bool checked);
+
+    void on_rbRotate180deg_clicked(bool checked);
+
+    void on_rbRotate270deg_clicked(bool checked);
+
 private:
     bool m_localDebug;
     Ui::VizualizatorWidget *ui;

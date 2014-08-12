@@ -38,7 +38,6 @@ VizualizatorWidget::VizualizatorWidget(QWidget *parent) :
 {
     m_localDebug = true;
     ui->setupUi(this);
-    m_transform.reset();
     m_scene = new QGraphicsScene();
     ui->gvCameraView->setScene(m_scene);
     ui->gvCameraView->setSceneRect(0,0, ui->gvCameraView->width(), ui->gvCameraView->height());
@@ -49,8 +48,8 @@ VizualizatorWidget::VizualizatorWidget(QWidget *parent) :
     m_viewfinder->setSize(ui->gvCameraView->size());
     m_viewfinder->setTransformOriginPoint(m_viewfinder->boundingRect().center());
 
-    m_transform.rotate(180, Qt::YAxis);
-    m_transform.translate(-m_viewfinder->boundingRect().width(), 0);
+
+    m_transform.reset(); // Matrice identité (ne fait rien)
     m_viewfinder->setTransform(m_transform);
     /* On fait la liste des Camera devices:
      * On les place aussi dans un QActionGroup
@@ -431,4 +430,67 @@ void VizualizatorWidget::slotImageExposed(int id)
 {
 
     if (m_localDebug) qDebug()<<" ++++++++ " << __FUNCTION__<< id;
+}
+
+void VizualizatorWidget::on_dialOrientation_valueChanged(int value)
+{
+    if(value<5 || value > 354)
+    {
+        value = 0;
+        ui->rbRotate0deg->setChecked(true);
+    }
+    else if(value > 84 && value <91)
+    {
+        value = 90;
+        ui->rbRotate90deg->setChecked(true);
+    }
+    else if(value > 174 && value <186)
+    {
+        value = 180;
+        ui->rbRotate180deg->setChecked(true);
+    }
+    else if(value > 264 && value <276)
+    {
+        value = 270;
+        ui->rbRotate270deg->setChecked(true);
+    }
+
+    m_transform.reset();
+    /* Les deux translate sont là pour que le widget tourne autour de son centre */
+    m_transform.translate(m_viewfinder->boundingRect().center().x(),m_viewfinder->boundingRect().center().y());
+    m_transform.rotate(value);
+    m_transform.translate(-m_viewfinder->boundingRect().center().x(),-m_viewfinder->boundingRect().center().y());
+    m_viewfinder->setTransform(m_transform);
+}
+
+void VizualizatorWidget::on_rbRotate0deg_clicked(bool checked)
+{
+    if(checked)
+    {
+        ui->dialOrientation->setValue(0);
+    }
+}
+
+void VizualizatorWidget::on_rbRotate90deg_clicked(bool checked)
+{
+    if(checked)
+    {
+        ui->dialOrientation->setValue(90);
+    }
+}
+
+void VizualizatorWidget::on_rbRotate180deg_clicked(bool checked)
+{
+    if(checked)
+    {
+        ui->dialOrientation->setValue(180);
+    }
+}
+
+void VizualizatorWidget::on_rbRotate270deg_clicked(bool checked)
+{
+    if(checked)
+    {
+        ui->dialOrientation->setValue(270);
+    }
 }
