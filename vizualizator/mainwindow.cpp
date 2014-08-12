@@ -33,6 +33,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     /* On place la liste des QActions dans le menu Caméras de la mainwindow */
     ui->menuCamera->addActions(ui->widgetVizu->vizualizatorWidgetGetVideoDevicesGroup()->actions());
+    ui->widgetVizu->VizualizatorWidgetGetToolBox()->setParent(0);
+    ui->widgetVizu->VizualizatorWidgetGetToolBox()->show();
 }
 
 MainWindow::~MainWindow()

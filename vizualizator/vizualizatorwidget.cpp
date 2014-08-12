@@ -90,6 +90,11 @@ VizualizatorWidget::~VizualizatorWidget()
     delete ui;
 }
 
+QToolBox *VizualizatorWidget::VizualizatorWidgetGetToolBox()
+{
+    return ui->tbToolPanel;
+}
+
 void VizualizatorWidget::setCamera(const QByteArray &cameraDevice)
 {
     /* On détruit les éventuels objects devenus obsoletes */
@@ -513,7 +518,7 @@ void VizualizatorWidget::on_btnVerticalMirror_clicked(bool checked)
 
 void VizualizatorWidget::updateViewfinderTransformations()
 {
-    m_viewfinder->setTransform(m_transformRotation);
+    m_viewfinder->setTransform(m_transformRotation, false);
     m_viewfinder->setTransform(m_transformVMirror, true);
     m_viewfinder->setTransform(m_transformHMirror, true);
 }

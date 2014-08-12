@@ -2,6 +2,7 @@
 #define VIZUALIZATORWIDGET_H
 
 #include <QWidget>
+#include <QToolBox>
 #include <QTransform>
 #include <QMessageBox>
 #include <QCloseEvent>
@@ -27,6 +28,7 @@ public:
     explicit VizualizatorWidget(QWidget *parent = 0);
     ~VizualizatorWidget();
     inline QActionGroup * vizualizatorWidgetGetVideoDevicesGroup(){return m_videoDevicesGroup;}
+    QToolBox * VizualizatorWidgetGetToolBox();
 private slots:
     void updateCameraDevice(QAction *action);
     void updateCaptureMode();
