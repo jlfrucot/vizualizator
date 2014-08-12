@@ -282,6 +282,23 @@
             </layout>
            </item>
            <item>
+            <widget class="QCheckBox" name="btnVerticalMirror">
+             <property name="text">
+              <string>Mirroir Vertical</string>
+             </property>
+             <property name="checkable">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="btnHorizontalMirror">
+             <property name="text">
+              <string>Mirroir Horizontal</string>
+             </property>
+            </widget>
+           </item>
+           <item>
             <spacer name="verticalSpacer_2">
              <property name="orientation">
               <enum>Qt::Vertical</enum>
@@ -310,8 +327,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>100</width>
-          <height>30</height>
+          <width>200</width>
+          <height>556</height>
          </rect>
         </property>
         <attribute name="label">
@@ -323,8 +340,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>100</width>
-          <height>30</height>
+          <width>200</width>
+          <height>556</height>
          </rect>
         </property>
         <attribute name="label">

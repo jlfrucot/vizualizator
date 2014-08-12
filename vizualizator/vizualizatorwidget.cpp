@@ -49,8 +49,11 @@ VizualizatorWidget::VizualizatorWidget(QWidget *parent) :
     m_viewfinder->setTransformOriginPoint(m_viewfinder->boundingRect().center());
 
 
-    m_transform.reset(); // Matrice identité (ne fait rien)
-    m_viewfinder->setTransform(m_transform);
+    m_transformRotation.reset(); // Matrice identité (ne fait rien)
+    m_transformHMirror.reset();
+    m_transformVMirror.reset();
+
+    m_viewfinder->setTransform(m_transformRotation);
     /* On fait la liste des Camera devices:
      * On les place aussi dans un QActionGroup
      * que l'on pourra utiliser pour mettre dans un menu par exemple
@@ -455,12 +458,13 @@ void VizualizatorWidget::on_dialOrientation_valueChanged(int value)
         ui->rbRotate270deg->setChecked(true);
     }
 
-    m_transform.reset();
+    m_transformRotation.reset();
     /* Les deux translate sont là pour que le widget tourne autour de son centre */
-    m_transform.translate(m_viewfinder->boundingRect().center().x(),m_viewfinder->boundingRect().center().y());
-    m_transform.rotate(value);
-    m_transform.translate(-m_viewfinder->boundingRect().center().x(),-m_viewfinder->boundingRect().center().y());
-    m_viewfinder->setTransform(m_transform);
+    m_transformRotation.translate(m_viewfinder->boundingRect().center().x(),m_viewfinder->boundingRect().center().y());
+    m_transformRotation.rotate(value);
+    m_transformRotation.translate(-m_viewfinder->boundingRect().center().x(),-m_viewfinder->boundingRect().center().y());
+//    m_viewfinder->setTransform(m_transformRotation);
+    updateViewfinderTransformations();
 }
 
 void VizualizatorWidget::on_rbRotate0deg_clicked(bool checked)
@@ -493,4 +497,34 @@ void VizualizatorWidget::on_rbRotate270deg_clicked(bool checked)
     {
         ui->dialOrientation->setValue(270);
     }
+}
+
+void VizualizatorWidget::on_btnVerticalMirror_clicked(bool checked)
+{
+    m_transformVMirror.reset();
+    if(checked)
+    {
+        m_transformVMirror.rotate(180, Qt::YAxis);
+        m_transformVMirror.translate(-m_viewfinder->boundingRect().width(), 0);
+    }
+    updateViewfinderTransformations();
+}
+
+void VizualizatorWidget::updateViewfinderTransformations()
+{
+    m_viewfinder->setTransform(m_transformRotation);
+    m_viewfinder->setTransform(m_transformVMirror, true);
+    m_viewfinder->setTransform(m_transformHMirror, true);
+}
+
+void VizualizatorWidget::on_btnHorizontalMirror_clicked(bool checked)
+{
+
+    m_transformHMirror.reset();
+    if(checked)
+    {
+        m_transformHMirror.rotate(180, Qt::XAxis);
+        m_transformHMirror.translate(0, -m_viewfinder->boundingRect().height());
+    }
+    updateViewfinderTransformations();
 }

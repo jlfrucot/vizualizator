@@ -54,6 +54,11 @@ private slots:
 
     void on_rbRotate270deg_clicked(bool checked);
 
+    void on_btnVerticalMirror_clicked(bool checked);
+
+    void updateViewfinderTransformations();
+    void on_btnHorizontalMirror_clicked(bool checked);
+
 private:
     bool m_localDebug;
     Ui::VizualizatorWidget *ui;
@@ -63,7 +68,10 @@ private:
     QGraphicsVideoItem *m_viewfinder;
     QMediaRecorder* m_mediaRecorder;
 
-    QTransform m_transform;
+    QTransform m_transformRotation;
+    QTransform m_transformVMirror;
+    QTransform m_transformHMirror;
+    QList<QTransform> m_transformations;
     QImageEncoderSettings m_imageSettings;
     QAudioEncoderSettings m_audioSettings;
     QVideoEncoderSettings m_videoSettings;
@@ -83,6 +91,7 @@ private:
     void takeImage();
     void startCamera();
     void stopCamera();
+
 };
 
 #endif // VIZUALIZATORWIDGET_H
