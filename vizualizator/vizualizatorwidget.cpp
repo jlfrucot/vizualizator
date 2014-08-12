@@ -146,6 +146,7 @@ void VizualizatorWidget::updateCameraDevice(QAction *action)
     if (m_localDebug) qDebug()<<" ++++++++ " << __FUNCTION__<<action->text();
     setCamera(action->data().toByteArray());
     ui->lbCameraName->setText(action->text());
+    ui->gvCameraView->fitInView(m_viewfinder, Qt::KeepAspectRatio);
 }
 void VizualizatorWidget::updateRecordTime()
 {
@@ -527,4 +528,15 @@ void VizualizatorWidget::on_btnHorizontalMirror_clicked(bool checked)
         m_transformHMirror.translate(0, -m_viewfinder->boundingRect().height());
     }
     updateViewfinderTransformations();
+}
+
+void VizualizatorWidget::resizeEvent(QResizeEvent *)
+{
+    ui->gvCameraView->fitInView(m_viewfinder,Qt::KeepAspectRatio);
+    //    m_viewfinder->setSize(ui->gvCameraView->size());
+}
+
+void VizualizatorWidget::showEvent(QShowEvent *)
+{
+    ui->gvCameraView->fitInView(m_viewfinder,Qt::KeepAspectRatio);
 }

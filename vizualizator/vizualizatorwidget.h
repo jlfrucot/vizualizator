@@ -59,6 +59,8 @@ private slots:
     void updateViewfinderTransformations();
     void on_btnHorizontalMirror_clicked(bool checked);
 
+    void resizeEvent(QResizeEvent *);
+    void showEvent(QShowEvent *);
 private:
     bool m_localDebug;
     Ui::VizualizatorWidget *ui;
