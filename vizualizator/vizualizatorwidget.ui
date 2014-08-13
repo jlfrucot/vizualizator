@@ -112,7 +112,7 @@
               <number>0</number>
              </property>
              <item row="1" column="1">
-              <widget class="QDial" name="dialOrientation">
+              <widget class="ValuedDial" name="dialOrientation">
                <property name="maximum">
                 <number>360</number>
                </property>
@@ -327,8 +327,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>200</width>
-          <height>556</height>
+          <width>98</width>
+          <height>28</height>
          </rect>
         </property>
         <attribute name="label">
@@ -340,8 +340,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>200</width>
-          <height>556</height>
+          <width>98</width>
+          <height>28</height>
          </rect>
         </property>
         <attribute name="label">
@@ -354,6 +354,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ValuedDial</class>
+   <extends>QDial</extends>
+   <header>valueddial.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

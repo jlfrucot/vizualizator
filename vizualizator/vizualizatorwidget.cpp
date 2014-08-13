@@ -441,6 +441,7 @@ void VizualizatorWidget::slotImageExposed(int id)
 
 void VizualizatorWidget::on_dialOrientation_valueChanged(int value)
 {
+    if (m_localDebug) qDebug()<<" ++++++++ " << __FUNCTION__;
     if(value<5 || value > 354)
     {
         value = 0;
@@ -461,7 +462,7 @@ void VizualizatorWidget::on_dialOrientation_valueChanged(int value)
         value = 270;
         ui->rbRotate270deg->setChecked(true);
     }
-
+    ui->dialOrientation->setValue(value);
     m_transformRotation.reset();
     /* Les deux translate sont là pour que le widget tourne autour de son centre */
     m_transformRotation.translate(m_viewfinder->boundingRect().center().x(),m_viewfinder->boundingRect().center().y());
@@ -473,6 +474,7 @@ void VizualizatorWidget::on_dialOrientation_valueChanged(int value)
 
 void VizualizatorWidget::on_rbRotate0deg_clicked(bool checked)
 {
+    if (m_localDebug) qDebug()<<" ++++++++ " << __FUNCTION__<<checked;
     if(checked)
     {
         ui->dialOrientation->setValue(0);
@@ -481,6 +483,7 @@ void VizualizatorWidget::on_rbRotate0deg_clicked(bool checked)
 
 void VizualizatorWidget::on_rbRotate90deg_clicked(bool checked)
 {
+    if (m_localDebug) qDebug()<<" ++++++++ " << __FUNCTION__<<checked;
     if(checked)
     {
         ui->dialOrientation->setValue(90);
@@ -489,6 +492,7 @@ void VizualizatorWidget::on_rbRotate90deg_clicked(bool checked)
 
 void VizualizatorWidget::on_rbRotate180deg_clicked(bool checked)
 {
+    if (m_localDebug) qDebug()<<" ++++++++ " << __FUNCTION__<<checked;
     if(checked)
     {
         ui->dialOrientation->setValue(180);
@@ -497,6 +501,7 @@ void VizualizatorWidget::on_rbRotate180deg_clicked(bool checked)
 
 void VizualizatorWidget::on_rbRotate270deg_clicked(bool checked)
 {
+    if (m_localDebug) qDebug()<<" ++++++++ " << __FUNCTION__<<checked;
     if(checked)
     {
         ui->dialOrientation->setValue(270);
@@ -505,6 +510,7 @@ void VizualizatorWidget::on_rbRotate270deg_clicked(bool checked)
 
 void VizualizatorWidget::on_btnVerticalMirror_clicked(bool checked)
 {
+    if (m_localDebug) qDebug()<<" ++++++++ " << __FUNCTION__<<checked;
     m_transformVMirror.reset();
     if(checked)
     {
@@ -516,6 +522,7 @@ void VizualizatorWidget::on_btnVerticalMirror_clicked(bool checked)
 
 void VizualizatorWidget::updateViewfinderTransformations()
 {
+    if (m_localDebug) qDebug()<<" ++++++++ " << __FUNCTION__;
     m_viewfinder->setTransform(m_transformRotation, false);
     m_viewfinder->setTransform(m_transformVMirror, true);
     m_viewfinder->setTransform(m_transformHMirror, true);
@@ -523,7 +530,7 @@ void VizualizatorWidget::updateViewfinderTransformations()
 
 void VizualizatorWidget::on_btnHorizontalMirror_clicked(bool checked)
 {
-
+    if (m_localDebug) qDebug()<<" ++++++++ " << __FUNCTION__<<checked;
     m_transformHMirror.reset();
     if(checked)
     {

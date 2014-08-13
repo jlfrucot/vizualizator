@@ -16,10 +16,12 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    vizualizatorwidget.cpp
+    vizualizatorwidget.cpp \
+    valueddial.cpp
 
 HEADERS  += mainwindow.h \
-    vizualizatorwidget.h
+    vizualizatorwidget.h \
+    valueddial.h
 
 FORMS    += mainwindow.ui \
     vizualizatorwidget.ui
