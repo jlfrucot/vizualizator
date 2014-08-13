@@ -19,7 +19,12 @@
 namespace Ui {
 class VizualizatorWidget;
 }
-
+///
+/// \brief Ce widget affiche les images générées par les webcam connectées au système
+///
+/// Les images issues de la caméra sélectionnée, peuvent être capturées et enregistrées soit
+/// directement dans le dossier des images de Sankoré (logiciel de TBI), soit ailleurs.
+///
 class VizualizatorWidget : public QWidget
 {
     Q_OBJECT
@@ -27,42 +32,70 @@ class VizualizatorWidget : public QWidget
 public:
     explicit VizualizatorWidget(QWidget *parent = 0);
     ~VizualizatorWidget();
+    ///
+    /// \brief Fournit un pointeur vers un QActionGroup présentant la liste des caméras connectées
+    ///
+    /// \return La liste des caméras connectées sous forme d'un QActionGroup
+    /// \code{.cpp}
+    ///     /* On place la liste des QActions dans le menu Caméras de la mainwindow */
+    ///     ui->menuCamera->addActions(ui->widgetVizu->vizualizatorWidgetGetVideoDevicesGroup()->actions());
+    /// \endcode
+    ///
     inline QActionGroup * vizualizatorWidgetGetVideoDevicesGroup(){return m_videoDevicesGroup;}
+
+    ///
+    /// \brief Fournit un pointeur vers la QToolBox du vizualizatorWidget
+    ///
+    /// Permet de placer la ToolBox à un autre endroit tel qu'un dock widget dans la mainwindow
+    /// \code
+    ///ui->dockWidget->setWidget(ui->widgetVizu->VizualizatorWidgetGetToolBox());
+    /// \endcode
+    /// \return Pointeur vers QToolBox
+    ///
     QToolBox * VizualizatorWidgetGetToolBox();
+    QByteArray vizualizatorGetCameras();
 private slots:
+
+    ///
+    /// \brief Change de webcam
+    /// \param action La caméra sélectionnée dans le menu
+    ///
     void updateCameraDevice(QAction *action);
     void updateCaptureMode();
     void updateCameraState(QCamera::State state);
-    void updateRecorderState(QMediaRecorder::State state);
-    void updateRecordTime();
     void updateLockStatus(QCamera::LockStatus status, QCamera::LockChangeReason reason);
-    void processCapturedImage(int requestId, const QImage &img);
-    void displayCaptureError(int id, const QCameraImageCapture::Error error, const QString &errorString);
-    void displayRecorderError();
-    void displayCameraError();
-//    void readyForCapture(bool ready);
-    void imageSaved(int id, const QString &fileName);
-    void closeEvent(QCloseEvent *event);
+
     void on_btnTakePicture_clicked();
     void slotReadyForCapture(bool ready);
+    void displayCaptureError(int id, const QCameraImageCapture::Error error, const QString &errorString);
+    void processCapturedImage(int requestId, const QImage &img);
+    void displayCameraError();
     void slotImageExposed(int id);
+    void imageSaved(int id, const QString &fileName);
+
+    void updateRecorderState(QMediaRecorder::State state);
+    void updateRecordTime();
+    void displayRecorderError();
+
+    //////////////////////////////////////////////////////////////////////////
+    /// Les boutons de changement d'orientation et de retournement de l'image
+    /// de la caméra
+    //////////////////////////////////////////////////////////////////////////
     void on_dialOrientation_valueChanged(int value);
-
     void on_rbRotate0deg_clicked(bool checked);
-
     void on_rbRotate90deg_clicked(bool checked);
-
     void on_rbRotate180deg_clicked(bool checked);
-
     void on_rbRotate270deg_clicked(bool checked);
-
     void on_btnVerticalMirror_clicked(bool checked);
-
-    void updateViewfinderTransformations();
     void on_btnHorizontalMirror_clicked(bool checked);
+
+    /// Met à jour les transformations appliquées au viewfinder
+    void updateViewfinderTransformations();
+
 
     void resizeEvent(QResizeEvent *);
     void showEvent(QShowEvent *);
+    void closeEvent(QCloseEvent *event);
 private:
     bool m_localDebug;
     Ui::VizualizatorWidget *ui;
@@ -83,6 +116,7 @@ private:
     bool m_isCapturingImage;
     bool m_applicationExiting;
     QActionGroup *m_videoDevicesGroup;
+
     void setCamera(const QByteArray &cameraDevice);
     void configureCaptureSettings();
     void configureVideoSettings();

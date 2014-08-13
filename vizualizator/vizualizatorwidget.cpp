@@ -25,6 +25,7 @@
 #include "vizualizatorwidget.h"
 #include "ui_vizualizatorwidget.h"
 
+
 VizualizatorWidget::VizualizatorWidget(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::VizualizatorWidget),
@@ -42,23 +43,33 @@ VizualizatorWidget::VizualizatorWidget(QWidget *parent) :
     ui->gvCameraView->setScene(m_scene);
     ui->gvCameraView->setSceneRect(0,0, ui->gvCameraView->width(), ui->gvCameraView->height());
 
-
+    /* On va travailler dans une QGraphicsView */
     m_viewfinder = new QGraphicsVideoItem();
     m_scene->addItem(m_viewfinder);
     m_viewfinder->setSize(ui->gvCameraView->size());
     m_viewfinder->setTransformOriginPoint(m_viewfinder->boundingRect().center());
 
-
     m_transformRotation.reset(); // Matrice identité (ne fait rien)
     m_transformHMirror.reset();
     m_transformVMirror.reset();
 
-    m_viewfinder->setTransform(m_transformRotation);
     /* On fait la liste des Camera devices:
      * On les place aussi dans un QActionGroup
      * que l'on pourra utiliser pour mettre dans un menu par exemple
      * voir (vizualizatorWidgetGetVideoDevicesGroup()
+     * Et on affecte la première au widget
      */
+    setCamera(vizualizatorGetCameras());
+
+}
+
+VizualizatorWidget::~VizualizatorWidget()
+{
+    delete ui;
+}
+
+QByteArray VizualizatorWidget::vizualizatorGetCameras()
+{
     QByteArray cameraDevice;
     m_videoDevicesGroup = new QActionGroup(this);
     m_videoDevicesGroup->setExclusive(true);
@@ -81,15 +92,8 @@ VizualizatorWidget::VizualizatorWidget(QWidget *parent) :
     /* Pour changer de caméra */
     connect(m_videoDevicesGroup, SIGNAL(triggered(QAction*)), SLOT(updateCameraDevice(QAction*)));
 
-    setCamera(cameraDevice);
-
+    return cameraDevice; // La camera par défaut
 }
-
-VizualizatorWidget::~VizualizatorWidget()
-{
-    delete ui;
-}
-
 QToolBox *VizualizatorWidget::VizualizatorWidgetGetToolBox()
 {
     return ui->tbToolPanel;
@@ -123,11 +127,12 @@ void VizualizatorWidget::setCamera(const QByteArray &cameraDevice)
     connect(m_mediaRecorder, SIGNAL(durationChanged(qint64)), this, SLOT(updateRecordTime()));
     connect(m_mediaRecorder, SIGNAL(error(QMediaRecorder::Error)), this, SLOT(displayRecorderError()));
 
-    /* Un "captureur" d'images */
+    /* Un "captureur" d'images
+     * Avec beaucoup de connect : on fera le ménage plus tard
+     */
     m_imageCapture = new QCameraImageCapture(m_camera);
     connect(m_imageCapture, SIGNAL(readyForCaptureChanged(bool)), this, SLOT(slotReadyForCapture(bool)), Qt::UniqueConnection);
     connect(m_imageCapture, SIGNAL(imageExposed(int)), this, SLOT(slotImageExposed(int)), Qt::UniqueConnection);
-//    connect(m_imageCapture, SIGNAL(readyForCaptureChanged(bool)), this, SLOT(readyForCapture(bool)));
     connect(m_imageCapture, SIGNAL(imageCaptured(int,QImage)), this, SLOT(processCapturedImage(int,QImage)));
     connect(m_imageCapture, SIGNAL(imageSaved(int,QString)), this, SLOT(imageSaved(int,QString)));
     connect(m_imageCapture, SIGNAL(error(int,QCameraImageCapture::Error,QString)), this,
@@ -135,29 +140,27 @@ void VizualizatorWidget::setCamera(const QByteArray &cameraDevice)
 
     /* On affiche la caméra dans le bon widget */
     m_camera->setViewfinder(m_viewfinder);
+    connect(m_camera, SIGNAL(lockStatusChanged(QCamera::LockStatus, QCamera::LockChangeReason)),
+            this, SLOT(updateLockStatus(QCamera::LockStatus, QCamera::LockChangeReason)));
 
     updateCameraState(m_camera->state());
     updateLockStatus(m_camera->lockStatus(), QCamera::UserRequest);
     updateRecorderState(m_mediaRecorder->state());
-
-    connect(m_camera, SIGNAL(lockStatusChanged(QCamera::LockStatus, QCamera::LockChangeReason)),
-            this, SLOT(updateLockStatus(QCamera::LockStatus, QCamera::LockChangeReason)));
-
     updateCaptureMode();
-    m_camera->start();
+    m_camera->start(); // Et c'est parti
 }
 void VizualizatorWidget::updateCameraDevice(QAction *action)
 {
     if (m_localDebug) qDebug()<<" ++++++++ " << __FUNCTION__<<action->text();
     setCamera(action->data().toByteArray());
     ui->lbCameraName->setText(action->text());
+    // On maximise la taille de la caméra dans la QGraphicsView
     ui->gvCameraView->fitInView(m_viewfinder, Qt::KeepAspectRatio);
 }
 void VizualizatorWidget::updateRecordTime()
 {
     if (m_localDebug) qDebug()<<" ++++++++ " << __FUNCTION__;
     QString str = QString("Recorded %1 sec").arg(m_mediaRecorder->duration()/1000);
-    //    ui->statusbar->showMessage(str);
 }
 
 void VizualizatorWidget::processCapturedImage(int requestId, const QImage& img)
@@ -167,12 +170,6 @@ void VizualizatorWidget::processCapturedImage(int requestId, const QImage& img)
     QImage scaledImage = img.scaled(m_viewfinder->size().toSize(),
                                     Qt::KeepAspectRatio,
                                     Qt::SmoothTransformation);
-
-    //    ui->lastImagePreviewLabel->setPixmap(QPixmap::fromImage(scaledImage));
-
-    //    // Display captured image for 4 seconds.
-    //    displayCapturedImage();
-    //    QTimer::singleShot(4000, this, SLOT(displayViewfinder()));
 }
 
 void VizualizatorWidget::configureCaptureSettings()
@@ -264,6 +261,7 @@ void VizualizatorWidget::toggleLock()
 
 void VizualizatorWidget::updateLockStatus(QCamera::LockStatus status, QCamera::LockChangeReason reason)
 {
+    Q_UNUSED(reason)
     if (m_localDebug) qDebug()<<" ++++++++ " << __FUNCTION__;
     QColor indicationColor = Qt::black;
 
