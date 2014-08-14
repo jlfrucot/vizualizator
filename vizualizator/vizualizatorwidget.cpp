@@ -526,6 +526,7 @@ void VizualizatorWidget::updateViewfinderTransformations()
     m_viewfinder->setTransform(m_transformRotation, false);
     m_viewfinder->setTransform(m_transformVMirror, true);
     m_viewfinder->setTransform(m_transformHMirror, true);
+    ui->gvCameraView->fitInView(m_viewfinder, Qt::KeepAspectRatio);
 }
 
 void VizualizatorWidget::on_btnHorizontalMirror_clicked(bool checked)
