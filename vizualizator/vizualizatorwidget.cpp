@@ -170,8 +170,8 @@ void VizualizatorWidget::processCapturedImage(int requestId, const QImage& img)
     QLabel *labelImage = new QLabel();
     VizualizatorImage *image = new VizualizatorImage(img);
 
-    labelImage->setPixmap(QPixmap::fromImage(image->rotate(45)));
-labelImage->show();
+    labelImage->setPixmap(QPixmap::fromImage(image->rotate((360-ui->dialOrientation->value())%360)).scaled(1280,720, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+    labelImage->show();
 //    QImage scaledImage = img.scaled(m_viewfinder->size().toSize(),
 //                                    Qt::KeepAspectRatio,
 //                                    Qt::SmoothTransformation);
