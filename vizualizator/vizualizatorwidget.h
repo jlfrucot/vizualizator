@@ -16,6 +16,7 @@
 #include <QActionGroup>
 #include <QCamera>
 
+#include "lib/vizualizatorimage.h"
 namespace Ui {
 class VizualizatorWidget;
 }

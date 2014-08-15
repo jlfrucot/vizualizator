@@ -167,9 +167,14 @@ void VizualizatorWidget::processCapturedImage(int requestId, const QImage& img)
 {
     if (m_localDebug) qDebug()<<" ++++++++ " << __FUNCTION__;
     Q_UNUSED(requestId);
-    QImage scaledImage = img.scaled(m_viewfinder->size().toSize(),
-                                    Qt::KeepAspectRatio,
-                                    Qt::SmoothTransformation);
+    QLabel *labelImage = new QLabel();
+    VizualizatorImage *image = new VizualizatorImage(img);
+
+    labelImage->setPixmap(QPixmap::fromImage(image->rotate(45)));
+labelImage->show();
+//    QImage scaledImage = img.scaled(m_viewfinder->size().toSize(),
+//                                    Qt::KeepAspectRatio,
+//                                    Qt::SmoothTransformation);
 }
 
 void VizualizatorWidget::configureCaptureSettings()
@@ -399,6 +404,7 @@ void VizualizatorWidget::imageSaved(int id, const QString &fileName)
 
     m_isCapturingImage = false;
     
+
     if (m_applicationExiting)
         close();
     

@@ -10,6 +10,14 @@ QT       += core gui
 QT       += widgets multimedia multimediawidgets
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
+!android {
+  exists( /usr/include/opencv2/opencv.hpp ) {
+    message(" -> Utilisation de OpenCV 2 (precise)")
+    LIBS += -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_ml -lopencv_video -lopencv_features2d -lopencv_calib3d -lopencv_objdetect
+    DEFINES += WITH_OPENCV2
+  }
+}
+
 TARGET = vizualizator
 TEMPLATE = app
 
