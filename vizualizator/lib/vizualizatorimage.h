@@ -23,7 +23,7 @@ public:
 private:
     const QImage m_image;
     int m_angle;
-    QImage cvMatToQimage(cv::Mat &mat, QImage::Format format);
+    QImage cvMatToQimage(const cv::Mat &mat, QImage::Format format);
     cv::Mat qImageToCvMat(const QImage &inImage, bool inCloneImageData = true);
     bool m_localDebug;
 signals:
