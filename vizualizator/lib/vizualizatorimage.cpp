@@ -1,10 +1,14 @@
 #include "vizualizatorimage.h"
 
 VizualizatorImage::VizualizatorImage(const QImage &image) :
-    QImage(image),
     m_image(image),
     m_angle(0),
     m_localDebug(false)
+{
+
+}
+
+VizualizatorImage::~VizualizatorImage()
 {
 
 }

@@ -15,6 +15,7 @@
 #include <QMediaMetaData>
 #include <QActionGroup>
 #include <QCamera>
+#include <QTimer>
 
 #include "lib/vizualizatorimage.h"
 namespace Ui {
@@ -57,6 +58,7 @@ public:
     QByteArray vizualizatorGetCameras();
 private slots:
 
+    void showResizedImage();
     ///
     /// \brief Change de webcam
     /// \param action La caméra sélectionnée dans le menu
@@ -101,8 +103,11 @@ private:
     bool m_localDebug;
     Ui::VizualizatorWidget *ui;
     QGraphicsScene *m_scene;
+    QGraphicsScene *m_sceneImage;
     QCamera *m_camera;
     QCameraImageCapture *m_imageCapture;
+    QGraphicsPixmapItem *m_imageItem;
+    VizualizatorImage *m_image;
     QGraphicsVideoItem *m_viewfinder;
     QMediaRecorder* m_mediaRecorder;
 

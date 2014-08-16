@@ -30,8 +30,10 @@ VizualizatorWidget::VizualizatorWidget(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::VizualizatorWidget),
     m_scene(0),
+    m_sceneImage(0),
     m_camera(0),
     m_imageCapture(0),
+    m_imageItem(0),
     m_viewfinder(0),
     m_mediaRecorder(0),
     m_isCapturingImage(false),
@@ -43,6 +45,9 @@ VizualizatorWidget::VizualizatorWidget(QWidget *parent) :
     ui->gvCameraView->setScene(m_scene);
     ui->gvCameraView->setSceneRect(0,0, ui->gvCameraView->width(), ui->gvCameraView->height());
 
+    m_sceneImage = new QGraphicsScene();
+    ui->gvImage->setScene(m_sceneImage);
+    ui->gvImage->setSceneRect(0,0, ui->gvImage->width(), ui->gvImage->height());
     /* On va travailler dans une QGraphicsView */
     m_viewfinder = new QGraphicsVideoItem();
     m_scene->addItem(m_viewfinder);
@@ -151,7 +156,7 @@ void VizualizatorWidget::setCamera(const QByteArray &cameraDevice)
 }
 void VizualizatorWidget::updateCameraDevice(QAction *action)
 {
-    if (m_localDebug) qDebug()<<" ++++++++ " << __FUNCTION__<<action->text();
+    if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__<<action->text();
     setCamera(action->data().toByteArray());
     ui->lbCameraName->setText(action->text());
     // On maximise la taille de la caméra dans la QGraphicsView
@@ -159,27 +164,58 @@ void VizualizatorWidget::updateCameraDevice(QAction *action)
 }
 void VizualizatorWidget::updateRecordTime()
 {
-    if (m_localDebug) qDebug()<<" ++++++++ " << __FUNCTION__;
+    if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__;
     QString str = QString("Recorded %1 sec").arg(m_mediaRecorder->duration()/1000);
+}
+
+void VizualizatorWidget::showResizedImage()
+{
+    if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__;
+//    ui->gvImage->ensurePolished();
+
+    ui->gvImage->setSceneRect(ui->gvImage->rect());
+    QImage scaledImage = m_image->getOriginalImage().scaled(ui->gvImage->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation);
+    m_imageItem->setPixmap(QPixmap::fromImage(scaledImage));
+    qDebug()<<__LINE__<<ui->gvImage->width()<<m_imageItem->boundingRect().width()<< (ui->gvImage->width()-m_imageItem->boundingRect().width())/2;
+    m_imageItem->setPos((ui->gvImage->width()-m_imageItem->boundingRect().width())/2,
+                        (ui->gvImage->height()-m_imageItem->boundingRect().height())/2);
+    qDebug()<<m_imageItem->pos();
 }
 
 void VizualizatorWidget::processCapturedImage(int requestId, const QImage& img)
 {
-    if (m_localDebug) qDebug()<<" ++++++++ " << __FUNCTION__;
-    Q_UNUSED(requestId);
-    QLabel *labelImage = new QLabel();
-    VizualizatorImage *image = new VizualizatorImage(img);
 
-    labelImage->setPixmap(QPixmap::fromImage(image->rotate((360-ui->dialOrientation->value())%360)).scaled(1280,720, Qt::KeepAspectRatio, Qt::SmoothTransformation));
-    labelImage->show();
-//    QImage scaledImage = img.scaled(m_viewfinder->size().toSize(),
-//                                    Qt::KeepAspectRatio,
-//                                    Qt::SmoothTransformation);
+    if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__;
+    Q_UNUSED(requestId);
+    ui->tabGallery->setVisible(true);
+    ui->tabWidget->setCurrentWidget(ui->tabGallery);
+
+    if(!m_imageItem)
+    {
+        m_imageItem = new QGraphicsPixmapItem();
+//    ui->gvImage->fitInView(m_imageItem, Qt::KeepAspectRatio);
+//        m_imageItem->setSize(ui->gvImage->size());
+        m_sceneImage->addItem(m_imageItem);
+    }
+    if(m_image)
+    {
+        delete m_image;
+    }
+
+    m_image = new VizualizatorImage(img);
+    QTimer::singleShot(100,this,SLOT(showResizedImage()));
+//    showResizedImage();
+//    ui->gvImage->fitInView(m_imageItem, Qt::KeepAspectRatio);
+//    m_imageItem->setPos(0,0);
+    // Essai
+//    QLabel *labelImage = new QLabel();
+//    labelImage->setPixmap(QPixmap::fromImage(image->rotate((360-ui->dialOrientation->value())%360)).scaled(1280,720, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+//    labelImage->show();
 }
 
 void VizualizatorWidget::configureCaptureSettings()
 {
-    if (m_localDebug) qDebug()<<" ++++++++ " << __FUNCTION__;
+    if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__;
     switch (m_camera->captureMode()) {
     case QCamera::CaptureStillImage:
         configureImageSettings();
@@ -194,7 +230,7 @@ void VizualizatorWidget::configureCaptureSettings()
 
 void VizualizatorWidget::configureVideoSettings()
 {
-    if (m_localDebug) qDebug()<<" ++++++++ " << __FUNCTION__;
+    if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__;
     //    VideoSettings settingsDialog(mediaRecorder);
 
     //    settingsDialog.setAudioSettings(audioSettings);
@@ -215,7 +251,7 @@ void VizualizatorWidget::configureVideoSettings()
 
 void VizualizatorWidget::configureImageSettings()
 {
-    if (m_localDebug) qDebug()<<" ++++++++ " << __FUNCTION__;
+    if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__;
     //    ImageSettings settingsDialog(imageCapture);
 
     //    settingsDialog.setImageSettings(imageSettings);
@@ -228,32 +264,32 @@ void VizualizatorWidget::configureImageSettings()
 
 void VizualizatorWidget::record()
 {
-    if (m_localDebug) qDebug()<<" ++++++++ " << __FUNCTION__;
+    if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__;
     m_mediaRecorder->record();
     updateRecordTime();
 }
 
 void VizualizatorWidget::pause()
 {
-    if (m_localDebug) qDebug()<<" ++++++++ " << __FUNCTION__;
+    if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__;
     m_mediaRecorder->pause();
 }
 
 void VizualizatorWidget::stop()
 {
-    if (m_localDebug) qDebug()<<" ++++++++ " << __FUNCTION__;
+    if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__;
     m_mediaRecorder->stop();
 }
 
 void VizualizatorWidget::setMuted(bool muted)
 {
-    if (m_localDebug) qDebug()<<" ++++++++ " << __FUNCTION__;
+    if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__;
     m_mediaRecorder->setMuted(muted);
 }
 
 void VizualizatorWidget::toggleLock()
 {
-    if (m_localDebug) qDebug()<<" ++++++++ " << __FUNCTION__;
+    if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__;
     switch (m_camera->lockStatus()) {
     case QCamera::Searching:
     case QCamera::Locked:
@@ -267,7 +303,7 @@ void VizualizatorWidget::toggleLock()
 void VizualizatorWidget::updateLockStatus(QCamera::LockStatus status, QCamera::LockChangeReason reason)
 {
     Q_UNUSED(reason)
-    if (m_localDebug) qDebug()<<" ++++++++ " << __FUNCTION__;
+    if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__;
     QColor indicationColor = Qt::black;
 
     switch (status) {
@@ -297,14 +333,14 @@ void VizualizatorWidget::updateLockStatus(QCamera::LockStatus status, QCamera::L
 
 void VizualizatorWidget::takeImage()
 {
-    if (m_localDebug) qDebug()<<" ++++++++ " << __FUNCTION__;
+    if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__;
     m_isCapturingImage = true;
     m_imageCapture->capture();
 }
 
 void VizualizatorWidget::displayCaptureError(int id, const QCameraImageCapture::Error error, const QString &errorString)
 {
-    if (m_localDebug) qDebug()<<" ++++++++ " << __FUNCTION__;
+    if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__;
     Q_UNUSED(id);
     Q_UNUSED(error);
     QMessageBox::warning(this, tr("Image Capture Error"), errorString);
@@ -313,19 +349,19 @@ void VizualizatorWidget::displayCaptureError(int id, const QCameraImageCapture::
 
 void VizualizatorWidget::startCamera()
 {
-    if (m_localDebug) qDebug()<<" ++++++++ " << __FUNCTION__;
+    if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__;
     m_camera->start();
 }
 
 void VizualizatorWidget::stopCamera()
 {
-    if (m_localDebug) qDebug()<<" ++++++++ " << __FUNCTION__;
+    if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__;
     m_camera->stop();
 }
 
 void VizualizatorWidget::updateCaptureMode()
 {
-    if (m_localDebug) qDebug()<<" ++++++++ " << __FUNCTION__;
+    if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__;
     //    int tabIndex = ui->captureWidget->currentIndex();
     //    QCamera::CaptureModes captureMode = tabIndex == 0 ? QCamera::CaptureStillImage : QCamera::CaptureVideo;
 
@@ -340,7 +376,7 @@ void VizualizatorWidget::updateCaptureMode()
 
 void VizualizatorWidget::updateCameraState(QCamera::State state)
 {
-    if (m_localDebug) qDebug()<<" ++++++++ " << __FUNCTION__;
+    if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__;
     switch (state) {
     case QCamera::ActiveState:
         //        ui->actionStartCamera->setEnabled(false);
@@ -360,7 +396,7 @@ void VizualizatorWidget::updateCameraState(QCamera::State state)
 
 void VizualizatorWidget::updateRecorderState(QMediaRecorder::State state)
 {
-    if (m_localDebug) qDebug()<<" ++++++++ " << __FUNCTION__;
+    if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__;
     //    switch (state) {
     //    case QMediaRecorder::StoppedState:
     //        ui->recordButton->setEnabled(true);
@@ -381,24 +417,24 @@ void VizualizatorWidget::updateRecorderState(QMediaRecorder::State state)
 }
 void VizualizatorWidget::displayRecorderError()
 {
-    if (m_localDebug) qDebug()<<" ++++++++ " << __FUNCTION__;
+    if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__;
     QMessageBox::warning(this, tr("Capture error"), m_mediaRecorder->errorString());
 }
 
 void VizualizatorWidget::displayCameraError()
 {
-    if (m_localDebug) qDebug()<<" ++++++++ " << __FUNCTION__;
+    if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__;
     QMessageBox::warning(this, tr("Camera error"), m_camera->errorString());
 }
 //void VizualizatorWidget::readyForCapture(bool ready)
 //{
-//    //    if (m_localDebug) qDebug()<<" ++++++++ " << __FUNCTION__;
+//    //    if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__;
 //    //    ui->btnTakePicture->setEnabled(ready);
 //}
 
 void VizualizatorWidget::imageSaved(int id, const QString &fileName)
 {
-    if (m_localDebug) qDebug()<<" ++++++++ " << __FUNCTION__;
+    if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__;
     Q_UNUSED(id);
     Q_UNUSED(fileName);
 
@@ -412,7 +448,7 @@ void VizualizatorWidget::imageSaved(int id, const QString &fileName)
 
 void VizualizatorWidget::closeEvent(QCloseEvent *event)
 {
-    if (m_localDebug) qDebug()<<" ++++++++ " << __FUNCTION__;
+    if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__;
     if (m_isCapturingImage)
     {
         setEnabled(false);
@@ -427,7 +463,7 @@ void VizualizatorWidget::closeEvent(QCloseEvent *event)
 
 void VizualizatorWidget::on_btnTakePicture_clicked()
 {
-    if (m_localDebug) qDebug()<<" ++++++++ " << __FUNCTION__;
+    if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__;
     m_isCapturingImage = true;
     m_imageCapture->capture();
 }
@@ -435,19 +471,19 @@ void VizualizatorWidget::on_btnTakePicture_clicked()
 void VizualizatorWidget::slotReadyForCapture(bool ready)
 {
 
-    if (m_localDebug) qDebug()<<" ++++++++ " << __FUNCTION__<< ready;
+    if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__<< ready;
     ui->btnTakePicture->setEnabled(ready);
 }
 
 void VizualizatorWidget::slotImageExposed(int id)
 {
 
-    if (m_localDebug) qDebug()<<" ++++++++ " << __FUNCTION__<< id;
+    if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__<< id;
 }
 
 void VizualizatorWidget::on_dialOrientation_valueChanged(int value)
 {
-    if (m_localDebug) qDebug()<<" ++++++++ " << __FUNCTION__;
+    if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__;
     if(value<5 || value > 354)
     {
         value = 0;
@@ -480,7 +516,7 @@ void VizualizatorWidget::on_dialOrientation_valueChanged(int value)
 
 void VizualizatorWidget::on_rbRotate0deg_clicked(bool checked)
 {
-    if (m_localDebug) qDebug()<<" ++++++++ " << __FUNCTION__<<checked;
+    if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__<<checked;
     if(checked)
     {
         ui->dialOrientation->setValue(0);
@@ -489,7 +525,7 @@ void VizualizatorWidget::on_rbRotate0deg_clicked(bool checked)
 
 void VizualizatorWidget::on_rbRotate90deg_clicked(bool checked)
 {
-    if (m_localDebug) qDebug()<<" ++++++++ " << __FUNCTION__<<checked;
+    if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__<<checked;
     if(checked)
     {
         ui->dialOrientation->setValue(90);
@@ -498,7 +534,7 @@ void VizualizatorWidget::on_rbRotate90deg_clicked(bool checked)
 
 void VizualizatorWidget::on_rbRotate180deg_clicked(bool checked)
 {
-    if (m_localDebug) qDebug()<<" ++++++++ " << __FUNCTION__<<checked;
+    if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__<<checked;
     if(checked)
     {
         ui->dialOrientation->setValue(180);
@@ -507,7 +543,7 @@ void VizualizatorWidget::on_rbRotate180deg_clicked(bool checked)
 
 void VizualizatorWidget::on_rbRotate270deg_clicked(bool checked)
 {
-    if (m_localDebug) qDebug()<<" ++++++++ " << __FUNCTION__<<checked;
+    if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__<<checked;
     if(checked)
     {
         ui->dialOrientation->setValue(270);
@@ -516,7 +552,7 @@ void VizualizatorWidget::on_rbRotate270deg_clicked(bool checked)
 
 void VizualizatorWidget::on_btnVerticalMirror_clicked(bool checked)
 {
-    if (m_localDebug) qDebug()<<" ++++++++ " << __FUNCTION__<<checked;
+    if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__<<checked;
     m_transformVMirror.reset();
     if(checked)
     {
@@ -528,7 +564,7 @@ void VizualizatorWidget::on_btnVerticalMirror_clicked(bool checked)
 
 void VizualizatorWidget::updateViewfinderTransformations()
 {
-    if (m_localDebug) qDebug()<<" ++++++++ " << __FUNCTION__;
+    if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__;
     m_viewfinder->setTransform(m_transformRotation, false);
     m_viewfinder->setTransform(m_transformVMirror, true);
     m_viewfinder->setTransform(m_transformHMirror, true);
@@ -537,7 +573,7 @@ void VizualizatorWidget::updateViewfinderTransformations()
 
 void VizualizatorWidget::on_btnHorizontalMirror_clicked(bool checked)
 {
-    if (m_localDebug) qDebug()<<" ++++++++ " << __FUNCTION__<<checked;
+    if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__<<checked;
     m_transformHMirror.reset();
     if(checked)
     {
@@ -549,11 +585,26 @@ void VizualizatorWidget::on_btnHorizontalMirror_clicked(bool checked)
 
 void VizualizatorWidget::resizeEvent(QResizeEvent *)
 {
+    if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__;
     ui->gvCameraView->fitInView(m_viewfinder,Qt::KeepAspectRatio);
+    ui->gvImage->setSceneRect(0,0, ui->gvImage->width(), ui->gvImage->height());
+    if(m_imageItem)
+    {
+//        ui->gvImage->fitInView(m_imageItem, Qt::KeepAspectRatio);
+        showResizedImage();
     //    m_viewfinder->setSize(ui->gvCameraView->size());
+    }
 }
 
 void VizualizatorWidget::showEvent(QShowEvent *)
 {
+    if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__;
     ui->gvCameraView->fitInView(m_viewfinder,Qt::KeepAspectRatio);
+
+    ui->gvImage->setSceneRect(0,0, ui->gvImage->width(), ui->gvImage->height());
+    if(m_imageItem)
+    {
+        showResizedImage();
+//        ui->gvImage->fitInView(m_imageItem, Qt::KeepAspectRatio);
+    }
 }

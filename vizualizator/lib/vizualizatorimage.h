@@ -13,13 +13,15 @@ class VizualizatorImage : public QImage
 
 public:
     explicit VizualizatorImage(const QImage &image);
-
+    ~VizualizatorImage();
     ///
     /// \brief Return la QImage tournée de n degrés
     /// \param angle
     /// \return QImage tournée
     ///
     QImage rotate(int angle);
+
+    inline QImage getOriginalImage(){return m_image;}
 private:
     const QImage m_image;
     int m_angle;
