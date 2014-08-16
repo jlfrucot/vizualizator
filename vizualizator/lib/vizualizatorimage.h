@@ -10,9 +10,9 @@
 #endif
 class VizualizatorImage : public QImage
 {
-//    Q_OBJECT
+
 public:
-    explicit VizualizatorImage(const QImage &image, QObject *parent = 0);
+    explicit VizualizatorImage(const QImage &image);
 
     ///
     /// \brief Return la QImage tournée de n degrés
@@ -25,6 +25,7 @@ private:
     int m_angle;
     QImage cvMatToQimage(cv::Mat &mat, QImage::Format format);
     cv::Mat qImageToCvMat(const QImage &inImage, bool inCloneImageData = true);
+    bool m_localDebug;
 signals:
 
 public slots:
