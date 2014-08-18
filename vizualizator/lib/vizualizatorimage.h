@@ -8,7 +8,7 @@
   #include <opencv2/imgproc/imgproc.hpp>
   #include <opencv2/core/core.hpp>
 #endif
-class VizualizatorImage : public QImage
+class VizualizatorImage
 {
 
 public:
@@ -19,9 +19,9 @@ public:
     /// \param angle
     /// \return QImage tournée
     ///
-    QImage rotate(int angle);
+    QImage getRotatedImage(int angle);
 
-    inline QImage getOriginalImage(){return m_image;}
+    inline QImage const getOriginalImage(){return m_image;}
 private:
     const QImage m_image;
     int m_angle;

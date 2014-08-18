@@ -34,6 +34,7 @@ VizualizatorWidget::VizualizatorWidget(QWidget *parent) :
     m_camera(0),
     m_imageCapture(0),
     m_imageItem(0),
+    m_image(0),
     m_viewfinder(0),
     m_mediaRecorder(0),
     m_isCapturingImage(false),
@@ -70,6 +71,15 @@ VizualizatorWidget::VizualizatorWidget(QWidget *parent) :
 
 VizualizatorWidget::~VizualizatorWidget()
 {
+    if(m_image)
+    {
+        delete m_image;
+    }
+       if (m_camera)
+       {
+           m_camera->stop();
+           delete m_camera;
+       }
     delete ui;
 }
 
@@ -174,8 +184,16 @@ void VizualizatorWidget::showResizedImage()
 //    ui->gvImage->ensurePolished();
 
     ui->gvImage->setSceneRect(ui->gvImage->rect());
-    QImage scaledImage = m_image->getOriginalImage().scaled(ui->gvImage->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation);
-    m_imageItem->setPixmap(QPixmap::fromImage(scaledImage));
+    if(ui->cbNativeImage->isChecked())
+    {
+        QImage scaledImage = m_image->getOriginalImage().scaled(ui->gvImage->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation);
+        m_imageItem->setPixmap(QPixmap::fromImage(scaledImage));
+    }
+    else
+    {
+        QImage scaledImage = m_image->getRotatedImage((360-ui->dialOrientation->value())%360).scaled(ui->gvImage->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation);
+        m_imageItem->setPixmap(QPixmap::fromImage(scaledImage));
+    }
     qDebug()<<__LINE__<<ui->gvImage->width()<<m_imageItem->boundingRect().width()<< (ui->gvImage->width()-m_imageItem->boundingRect().width())/2;
     m_imageItem->setPos((ui->gvImage->width()-m_imageItem->boundingRect().width())/2,
                         (ui->gvImage->height()-m_imageItem->boundingRect().height())/2);
@@ -189,7 +207,7 @@ void VizualizatorWidget::processCapturedImage(int requestId, const QImage& img)
     Q_UNUSED(requestId);
     ui->tabGallery->setVisible(true);
     ui->tabWidget->setCurrentWidget(ui->tabGallery);
-
+    ui->tbToolPanel->setCurrentWidget(ui->pageImagesSettings);
     if(!m_imageItem)
     {
         m_imageItem = new QGraphicsPixmapItem();
@@ -201,8 +219,8 @@ void VizualizatorWidget::processCapturedImage(int requestId, const QImage& img)
     {
         delete m_image;
     }
-
     m_image = new VizualizatorImage(img);
+    /* Pour laisser le temps au widget de prendre sa taille ??? */
     QTimer::singleShot(100,this,SLOT(showResizedImage()));
 //    showResizedImage();
 //    ui->gvImage->fitInView(m_imageItem, Qt::KeepAspectRatio);
@@ -331,12 +349,12 @@ void VizualizatorWidget::updateLockStatus(QCamera::LockStatus status, QCamera::L
     }
 }
 
-void VizualizatorWidget::takeImage()
-{
-    if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__;
-    m_isCapturingImage = true;
-    m_imageCapture->capture();
-}
+//void VizualizatorWidget::takeImage()
+//{
+//    if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__;
+//    m_isCapturingImage = true;
+//    m_imageCapture->capture();
+//}
 
 void VizualizatorWidget::displayCaptureError(int id, const QCameraImageCapture::Error error, const QString &errorString)
 {
@@ -607,4 +625,10 @@ void VizualizatorWidget::showEvent(QShowEvent *)
         showResizedImage();
 //        ui->gvImage->fitInView(m_imageItem, Qt::KeepAspectRatio);
     }
+}
+
+void VizualizatorWidget::on_cbNativeImage_clicked(bool checked)
+{
+    if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__;
+    showResizedImage();
 }

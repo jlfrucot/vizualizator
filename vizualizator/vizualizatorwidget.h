@@ -99,6 +99,8 @@ private slots:
     void resizeEvent(QResizeEvent *);
     void showEvent(QShowEvent *);
     void closeEvent(QCloseEvent *event);
+    void on_cbNativeImage_clicked(bool checked);
+
 private:
     bool m_localDebug;
     Ui::VizualizatorWidget *ui;
@@ -132,7 +134,7 @@ private:
     void stop();
     void setMuted(bool muted);
     void toggleLock();
-    void takeImage();
+//    void takeImage();
     void startCamera();
     void stopCamera();
 

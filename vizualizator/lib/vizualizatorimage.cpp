@@ -13,7 +13,7 @@ VizualizatorImage::~VizualizatorImage()
 
 }
 
-QImage VizualizatorImage::rotate(int angle)
+QImage VizualizatorImage::getRotatedImage(int angle)
 {
     cv::Mat matOriginal(qImageToCvMat(m_image, false));
     cv::Mat matRotated;
@@ -24,7 +24,8 @@ QImage VizualizatorImage::rotate(int angle)
 
     int offsetX = (diagonal - matOriginal.cols) / 2;
     int offsetY = (diagonal - matOriginal.rows) / 2;
-    cv::Mat targetMat(diagonal, diagonal, matOriginal.type());
+    cv::Mat targetMat;
+    targetMat = cv::Mat::zeros(diagonal, diagonal, matOriginal.type());
     cv::Point2f imageCenter(targetMat.cols/2.0F, targetMat.rows/2.0F);
 
     /* On copie l'image dans la grande image carrée, au mileu
