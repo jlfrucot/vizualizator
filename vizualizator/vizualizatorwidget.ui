@@ -389,6 +389,13 @@
             </widget>
            </item>
            <item>
+            <widget class="QPushButton" name="btnFullScreenImage">
+             <property name="text">
+              <string>Plein écran</string>
+             </property>
+            </widget>
+           </item>
+           <item>
             <spacer name="verticalSpacer">
              <property name="orientation">
               <enum>Qt::Vertical</enum>

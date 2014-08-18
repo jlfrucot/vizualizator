@@ -42,6 +42,7 @@ VizualizatorWidget::VizualizatorWidget(QWidget *parent) :
 {
     m_localDebug = true;
     ui->setupUi(this);
+    ui->tbToolPanel->setCurrentWidget(ui->pageCamera);
     m_scene = new QGraphicsScene();
     ui->gvCameraView->setScene(m_scene);
     ui->gvCameraView->setSceneRect(0,0, ui->gvCameraView->width(), ui->gvCameraView->height());
@@ -631,4 +632,32 @@ void VizualizatorWidget::on_cbNativeImage_clicked(bool checked)
 {
     if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__;
     showResizedImage();
+}
+
+void VizualizatorWidget::on_btnFullScreenImage_clicked()
+{
+    if(ui->cbNativeImage->isChecked())
+    {
+        QSize size = QApplication::desktop()->availableGeometry().size();
+//        qDebug()<<"QApplication::desktop()->availableGeometry().size();"<<QApplication::desktop()->screenGeometry().size();
+        QImage scaledImage = m_image->getOriginalImage().scaled(size, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+        QLabel *label = new QLabel();
+        label->setAlignment(Qt::AlignCenter);
+//        label->setScaledContents(true);
+        label->setPixmap(QPixmap::fromImage(scaledImage));
+
+        label->showMaximized();
+
+    }
+    else
+    {
+        QSize size = QApplication::desktop()->availableGeometry().size();
+//        qDebug()<<"QApplication::desktop()->availableGeometry().size();"<<QApplication::desktop()->screenGeometry().size();
+        QImage scaledImage = m_image->getRotatedImage((360-ui->dialOrientation->value())%360).scaled(size, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+        QLabel *label = new QLabel();
+//        label->setScaledContents(true);
+        label->setAlignment(Qt::AlignCenter);
+        label->setPixmap(QPixmap::fromImage(scaledImage));
+        label->show();
+    }
 }

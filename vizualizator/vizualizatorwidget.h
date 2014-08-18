@@ -1,6 +1,9 @@
 #ifndef VIZUALIZATORWIDGET_H
 #define VIZUALIZATORWIDGET_H
 
+#include <QApplication>
+#include <QDesktopWidget>
+#include <QSize>
 #include <QWidget>
 #include <QToolBox>
 #include <QTransform>
@@ -100,6 +103,8 @@ private slots:
     void showEvent(QShowEvent *);
     void closeEvent(QCloseEvent *event);
     void on_cbNativeImage_clicked(bool checked);
+
+    void on_btnFullScreenImage_clicked();
 
 private:
     bool m_localDebug;
