@@ -13,10 +13,18 @@ VizualizatorImage::~VizualizatorImage()
 
 }
 
-QImage VizualizatorImage::getRotatedImage(int angle)
+QImage VizualizatorImage::getRotatedImage(int angle, bool xAxisMirror, bool yAxisMirror)
 {
-    cv::Mat matOriginal(qImageToCvMat(m_image, false));
+    cv::Mat matOriginal(qImageToCvMat(m_image, true)); // Avec copie pour ne pas modifier l'image de base
     cv::Mat matRotated;
+    if(xAxisMirror)
+    {
+        cv::flip(matOriginal, matOriginal,0); // xAxis
+    }
+    if(yAxisMirror)
+    {
+        cv::flip(matOriginal, matOriginal,1); // yAxis
+    }
     /* On crée une matrice dont les dimensions sont celles d'un carré de côté la diagonale de l'image
      * Comme cela l'image tournée tiendra dedans sans cropping
      */

@@ -34,7 +34,11 @@ class VizualizatorWidget : public QWidget
 {
     Q_OBJECT
 
+    Q_FLAGS(Flip Flips)
 public:
+
+    enum Flip{FlipHorizontal = 1, FlipVertical = 2};
+    Q_DECLARE_FLAGS(Flips, Flip)
     explicit VizualizatorWidget(QWidget *parent = 0);
     ~VizualizatorWidget();
     ///
@@ -92,8 +96,8 @@ private slots:
     void on_rbRotate90deg_clicked(bool checked);
     void on_rbRotate180deg_clicked(bool checked);
     void on_rbRotate270deg_clicked(bool checked);
-    void on_btnVerticalMirror_clicked(bool checked);
-    void on_btnHorizontalMirror_clicked(bool checked);
+    void on_btnYaxisMirror_clicked(bool checked);
+    void on_btnXaxisMirror_clicked(bool checked);
 
     /// Met à jour les transformations appliquées au viewfinder
     void updateViewfinderTransformations();
@@ -144,5 +148,6 @@ private:
     void stopCamera();
 
 };
+
 
 #endif // VIZUALIZATORWIDGET_H

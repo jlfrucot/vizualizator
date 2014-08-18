@@ -10,7 +10,6 @@
 #endif
 class VizualizatorImage
 {
-
 public:
     explicit VizualizatorImage(const QImage &image);
     ~VizualizatorImage();
@@ -19,7 +18,7 @@ public:
     /// \param angle
     /// \return QImage tournée
     ///
-    QImage getRotatedImage(int angle);
+    QImage getRotatedImage(int angle, bool xAxisMirror = false, bool yAxisMirror = false);
 
     inline QImage const getOriginalImage(){return m_image;}
 private:
@@ -33,5 +32,4 @@ signals:
 public slots:
 
 };
-
 #endif // VIZUALIZATORIMAGE_H

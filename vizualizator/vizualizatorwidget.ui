@@ -107,7 +107,7 @@
         </size>
        </property>
        <property name="currentIndex">
-        <number>1</number>
+        <number>0</number>
        </property>
        <widget class="QWidget" name="pageCamera">
         <property name="geometry">
@@ -323,7 +323,7 @@
             </layout>
            </item>
            <item>
-            <widget class="QCheckBox" name="btnVerticalMirror">
+            <widget class="QCheckBox" name="btnYaxisMirror">
              <property name="text">
               <string>Mirroir Vertical</string>
              </property>
@@ -333,7 +333,7 @@
             </widget>
            </item>
            <item>
-            <widget class="QCheckBox" name="btnHorizontalMirror">
+            <widget class="QCheckBox" name="btnXaxisMirror">
              <property name="text">
               <string>Mirroir Horizontal</string>
              </property>

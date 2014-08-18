@@ -192,7 +192,10 @@ void VizualizatorWidget::showResizedImage()
     }
     else
     {
-        QImage scaledImage = m_image->getRotatedImage((360-ui->dialOrientation->value())%360).scaled(ui->gvImage->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation);
+        QImage scaledImage = m_image->getRotatedImage((360-ui->dialOrientation->value())%360,
+                                                      ui->btnXaxisMirror->isChecked(),
+                                                      ui->btnYaxisMirror->isChecked())
+                                                     .scaled(ui->gvImage->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation);
         m_imageItem->setPixmap(QPixmap::fromImage(scaledImage));
     }
     qDebug()<<__LINE__<<ui->gvImage->width()<<m_imageItem->boundingRect().width()<< (ui->gvImage->width()-m_imageItem->boundingRect().width())/2;
@@ -569,7 +572,7 @@ void VizualizatorWidget::on_rbRotate270deg_clicked(bool checked)
     }
 }
 
-void VizualizatorWidget::on_btnVerticalMirror_clicked(bool checked)
+void VizualizatorWidget::on_btnYaxisMirror_clicked(bool checked)
 {
     if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__<<checked;
     m_transformVMirror.reset();
@@ -590,7 +593,7 @@ void VizualizatorWidget::updateViewfinderTransformations()
     ui->gvCameraView->fitInView(m_viewfinder, Qt::KeepAspectRatio);
 }
 
-void VizualizatorWidget::on_btnHorizontalMirror_clicked(bool checked)
+void VizualizatorWidget::on_btnXaxisMirror_clicked(bool checked)
 {
     if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__<<checked;
     m_transformHMirror.reset();
@@ -636,28 +639,24 @@ void VizualizatorWidget::on_cbNativeImage_clicked(bool checked)
 
 void VizualizatorWidget::on_btnFullScreenImage_clicked()
 {
+    QImage scaledImage;
     if(ui->cbNativeImage->isChecked())
     {
         QSize size = QApplication::desktop()->availableGeometry().size();
-//        qDebug()<<"QApplication::desktop()->availableGeometry().size();"<<QApplication::desktop()->screenGeometry().size();
-        QImage scaledImage = m_image->getOriginalImage().scaled(size, Qt::KeepAspectRatio, Qt::SmoothTransformation);
-        QLabel *label = new QLabel();
-        label->setAlignment(Qt::AlignCenter);
-//        label->setScaledContents(true);
-        label->setPixmap(QPixmap::fromImage(scaledImage));
-
-        label->showMaximized();
-
+        scaledImage = m_image->getOriginalImage().scaled(size, Qt::KeepAspectRatio, Qt::SmoothTransformation);
     }
     else
     {
         QSize size = QApplication::desktop()->availableGeometry().size();
-//        qDebug()<<"QApplication::desktop()->availableGeometry().size();"<<QApplication::desktop()->screenGeometry().size();
-        QImage scaledImage = m_image->getRotatedImage((360-ui->dialOrientation->value())%360).scaled(size, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+        {
+            scaledImage = m_image->getRotatedImage((360-ui->dialOrientation->value())%360,
+                                                          ui->btnXaxisMirror->isChecked(),
+                                                          ui->btnYaxisMirror->isChecked())
+                                                  .scaled(size,Qt::KeepAspectRatio,Qt::SmoothTransformation);
+        }
         QLabel *label = new QLabel();
-//        label->setScaledContents(true);
         label->setAlignment(Qt::AlignCenter);
         label->setPixmap(QPixmap::fromImage(scaledImage));
-        label->show();
+        label->showMaximized();
     }
 }
