@@ -14,15 +14,51 @@
    <string>Form</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="spacing">
+    <number>0</number>
+   </property>
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
+    <number>0</number>
+   </property>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
+     <property name="spacing">
+      <number>0</number>
+     </property>
+     <property name="leftMargin">
+      <number>0</number>
+     </property>
+     <property name="topMargin">
+      <number>0</number>
+     </property>
      <property name="rightMargin">
+      <number>0</number>
+     </property>
+     <property name="bottomMargin">
       <number>0</number>
      </property>
      <item>
       <widget class="QTabWidget" name="tabWidget">
+       <property name="styleSheet">
+        <string notr="true">color: rgb(94, 179, 247);</string>
+       </property>
+       <property name="tabPosition">
+        <enum>QTabWidget::North</enum>
+       </property>
+       <property name="tabShape">
+        <enum>QTabWidget::Rounded</enum>
+       </property>
        <property name="currentIndex">
-        <number>0</number>
+        <number>1</number>
        </property>
        <property name="elideMode">
         <enum>Qt::ElideMiddle</enum>
@@ -34,6 +70,12 @@
         <layout class="QVBoxLayout" name="verticalLayout_3">
          <item>
           <widget class="QGraphicsView" name="gvCameraView">
+           <property name="frameShape">
+            <enum>QFrame::NoFrame</enum>
+           </property>
+           <property name="frameShadow">
+            <enum>QFrame::Plain</enum>
+           </property>
            <property name="verticalScrollBarPolicy">
             <enum>Qt::ScrollBarAlwaysOff</enum>
            </property>
@@ -106,7 +148,14 @@
          <height>16777215</height>
         </size>
        </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(72, 71, 71);
+color: rgb(94, 179, 247);</string>
+       </property>
        <property name="currentIndex">
+        <number>0</number>
+       </property>
+       <property name="tabSpacing">
         <number>0</number>
        </property>
        <widget class="QWidget" name="pageCamera">
@@ -115,13 +164,28 @@
           <x>0</x>
           <y>0</y>
           <width>200</width>
-          <height>556</height>
+          <height>592</height>
          </rect>
         </property>
         <attribute name="label">
          <string>Caméra</string>
         </attribute>
         <layout class="QVBoxLayout" name="verticalLayout_4">
+         <property name="spacing">
+          <number>0</number>
+         </property>
+         <property name="leftMargin">
+          <number>9</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
          <item>
           <layout class="QVBoxLayout" name="verticalLayout_2">
            <item>
@@ -369,7 +433,7 @@
           <x>0</x>
           <y>0</y>
           <width>200</width>
-          <height>556</height>
+          <height>592</height>
          </rect>
         </property>
         <attribute name="label">
@@ -418,7 +482,7 @@
           <x>0</x>
           <y>0</y>
           <width>200</width>
-          <height>556</height>
+          <height>592</height>
          </rect>
         </property>
         <attribute name="label">
