@@ -100,6 +100,11 @@ QImage VizualizatorImage::getRotatedImage(int angle, bool xAxisMirror, bool yAxi
     return cvMatToQimage(croppedResult, m_image.format());
 }
 
+QImage VizualizatorImage::getThumbnail(QSize size)
+{
+    return m_image.scaled(size, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+}
+
 /* Convertit une cv::Mat en QImage avec copie */
 QImage VizualizatorImage::cvMatToQimage(const cv::Mat &mat, QImage::Format format)
 {

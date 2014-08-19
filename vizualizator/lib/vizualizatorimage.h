@@ -13,6 +13,8 @@ class VizualizatorImage
 public:
     explicit VizualizatorImage(const QImage &image);
     ~VizualizatorImage();
+
+    inline QImage const getOriginalImage(){return m_image;}
     ///
     /// \brief Return la QImage tournée de n degrés
     /// \param angle
@@ -20,7 +22,7 @@ public:
     ///
     QImage getRotatedImage(int angle, bool xAxisMirror = false, bool yAxisMirror = false);
 
-    inline QImage const getOriginalImage(){return m_image;}
+    QImage getThumbnail(QSize size = QSize(128,128));
 private:
     const QImage m_image;
     int m_angle;

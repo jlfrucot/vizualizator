@@ -119,6 +119,7 @@ private:
     QCameraImageCapture *m_imageCapture;
     QGraphicsPixmapItem *m_imageItem;
     VizualizatorImage *m_image;
+    QList<QLabel *>m_fullscreenLabels;
     QGraphicsVideoItem *m_viewfinder;
     QMediaRecorder* m_mediaRecorder;
 

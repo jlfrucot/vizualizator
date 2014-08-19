@@ -43,6 +43,7 @@ VizualizatorWidget::VizualizatorWidget(QWidget *parent) :
     m_localDebug = true;
     ui->setupUi(this);
     ui->tbToolPanel->setCurrentWidget(ui->pageCamera);
+
     m_scene = new QGraphicsScene();
     ui->gvCameraView->setScene(m_scene);
     ui->gvCameraView->setSceneRect(0,0, ui->gvCameraView->width(), ui->gvCameraView->height());
