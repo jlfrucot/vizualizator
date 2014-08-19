@@ -19,6 +19,8 @@
 #include <QActionGroup>
 #include <QCamera>
 #include <QTimer>
+#include <QListWidget>
+#include <QHideEvent>
 
 #include "lib/vizualizatorimage.h"
 namespace Ui {
@@ -110,7 +112,7 @@ private slots:
 
     void on_btnFullScreenImage_clicked();
 
-    bool event(QEvent *event);
+    void hideEvent(QHideEvent *);
 private:
     bool m_localDebug;
     Ui::VizualizatorWidget *ui;

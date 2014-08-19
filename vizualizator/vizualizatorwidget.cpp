@@ -44,6 +44,7 @@ VizualizatorWidget::VizualizatorWidget(QWidget *parent) :
     setAttribute(Qt::WA_DeleteOnClose);
     ui->setupUi(this);
     ui->tbToolPanel->setCurrentWidget(ui->pageCamera);
+    ui->tabWidget->setCurrentWidget(ui->tabCamera1);
     m_fullscreenLabels.clear();
 
     m_scene = new QGraphicsScene();
@@ -235,13 +236,14 @@ void VizualizatorWidget::processCapturedImage(int requestId, const QImage& img)
     m_image = new VizualizatorImage(img);
     /* Pour laisser le temps au widget de prendre sa taille ??? */
     QTimer::singleShot(100,this,SLOT(showResizedImage()));
-//    showResizedImage();
-//    ui->gvImage->fitInView(m_imageItem, Qt::KeepAspectRatio);
-//    m_imageItem->setPos(0,0);
-    // Essai
-//    QLabel *labelImage = new QLabel();
-//    labelImage->setPixmap(QPixmap::fromImage(image->rotate((360-ui->dialOrientation->value())%360)).scaled(1280,720, Qt::KeepAspectRatio, Qt::SmoothTransformation));
-//    labelImage->show();
+    QListWidgetItem *item = new QListWidgetItem();
+
+//    item->setData(Qt::UserRole+1,nomFichier);
+//    item->setData(Qt::UserRole+2,m_numImageSeq);
+    item->setIcon(QPixmap::fromImage(m_image->getThumbnail()));
+    ui->lwGallery->insertItem(ui->lwGallery->count(),item);
+    ui->lwGallery->setCurrentItem(item);
+
 }
 
 void VizualizatorWidget::configureCaptureSettings()
@@ -492,20 +494,6 @@ void VizualizatorWidget::closeEvent(QCloseEvent *event)
     }
 }
 
-bool VizualizatorWidget::event(QEvent *event)
-{
-//    if (m_localDebug) qDebug()<<"+++++++++++++++++++++++++++++++++++++++++++++++++++Event type"<<event->type();
-    if(event->type()== QEvent::Hide)
-    {
-        foreach (QLabel *label, m_fullscreenLabels)
-        {
-           if (m_localDebug)  qDebug()<<"FullScreen Labels Destructor";
-            label->close();
-            label->deleteLater();
-        }
-        m_fullscreenLabels.clear();
-    }
-}
 
 void VizualizatorWidget::on_btnTakePicture_clicked()
 {
@@ -684,6 +672,17 @@ void VizualizatorWidget::on_btnFullScreenImage_clicked()
         m_fullscreenLabels.append(label);
         label->showMaximized();
     }
+}
+
+void VizualizatorWidget::hideEvent(QHideEvent *)
+{
+    foreach (QLabel *label, m_fullscreenLabels)
+    {
+       if (m_localDebug)  qDebug()<<"FullScreen Labels Destructor";
+        label->close();
+        label->deleteLater();
+    }
+    m_fullscreenLabels.clear();
 }
 
 
