@@ -61,8 +61,8 @@ VizualizatorWidget::VizualizatorWidget(QWidget *parent) :
     m_viewfinder->setTransformOriginPoint(m_viewfinder->boundingRect().center());
 
     m_transformRotation.reset(); // Matrice identité (ne fait rien)
-    m_transformHMirror.reset();
-    m_transformVMirror.reset();
+    m_transformXaxisMirror.reset();
+    m_transformYaxisMirror.reset();
 
     /* On fait la liste des Camera devices:
      * On les place aussi dans un QActionGroup
@@ -541,7 +541,8 @@ void VizualizatorWidget::on_dialOrientation_valueChanged(int value)
     m_transformRotation.translate(m_viewfinder->boundingRect().center().x(),m_viewfinder->boundingRect().center().y());
     m_transformRotation.rotate(value);
     m_transformRotation.translate(-m_viewfinder->boundingRect().center().x(),-m_viewfinder->boundingRect().center().y());
-//    m_viewfinder->setTransform(m_transformRotation);
+
+    // Et on affiche soit la caméra, soit l'image
     if(ui->tabWidget->currentWidget() == ui->tabCamera1)
     {
         updateViewfinderTransformations();
@@ -557,7 +558,7 @@ void VizualizatorWidget::on_rbRotate0deg_clicked(bool checked)
     if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__<<checked;
     if(checked)
     {
-        ui->dialOrientation->setValue(0);
+        ui->dialOrientation->setValue(0); // C'est le valuedDial qui se charge de la rotation
     }
 }
 
@@ -566,7 +567,7 @@ void VizualizatorWidget::on_rbRotate90deg_clicked(bool checked)
     if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__<<checked;
     if(checked)
     {
-        ui->dialOrientation->setValue(90);
+        ui->dialOrientation->setValue(90); // C'est le valuedDial qui se charge de la rotation
     }
 }
 
@@ -575,7 +576,7 @@ void VizualizatorWidget::on_rbRotate180deg_clicked(bool checked)
     if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__<<checked;
     if(checked)
     {
-        ui->dialOrientation->setValue(180);
+        ui->dialOrientation->setValue(180); // C'est le valuedDial qui se charge de la rotation
     }
 }
 
@@ -584,18 +585,30 @@ void VizualizatorWidget::on_rbRotate270deg_clicked(bool checked)
     if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__<<checked;
     if(checked)
     {
-        ui->dialOrientation->setValue(270);
+        ui->dialOrientation->setValue(270); // C'est le valuedDial qui se charge de la rotation
     }
 }
 
 void VizualizatorWidget::on_btnYaxisMirror_clicked(bool checked)
 {
     if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__<<checked;
-    m_transformVMirror.reset();
+    m_transformYaxisMirror.reset();
     if(checked)
     {
-        m_transformVMirror.rotate(180, Qt::YAxis);
-        m_transformVMirror.translate(-m_viewfinder->boundingRect().width(), 0);
+        m_transformYaxisMirror.rotate(180, Qt::YAxis);
+        m_transformYaxisMirror.translate(-m_viewfinder->boundingRect().width(), 0);
+    }
+    updateViewfinderTransformations();
+}
+
+void VizualizatorWidget::on_btnXaxisMirror_clicked(bool checked)
+{
+    if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__<<checked;
+    m_transformXaxisMirror.reset();
+    if(checked)
+    {
+        m_transformXaxisMirror.rotate(180, Qt::XAxis);
+        m_transformXaxisMirror.translate(0, -m_viewfinder->boundingRect().height());
     }
     updateViewfinderTransformations();
 }
@@ -604,22 +617,11 @@ void VizualizatorWidget::updateViewfinderTransformations()
 {
     if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__;
     m_viewfinder->setTransform(m_transformRotation, false);
-    m_viewfinder->setTransform(m_transformVMirror, true);
-    m_viewfinder->setTransform(m_transformHMirror, true);
+    m_viewfinder->setTransform(m_transformYaxisMirror, true);
+    m_viewfinder->setTransform(m_transformXaxisMirror, true);
     ui->gvCameraView->fitInView(m_viewfinder, Qt::KeepAspectRatio);
 }
 
-void VizualizatorWidget::on_btnXaxisMirror_clicked(bool checked)
-{
-    if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__<<checked;
-    m_transformHMirror.reset();
-    if(checked)
-    {
-        m_transformHMirror.rotate(180, Qt::XAxis);
-        m_transformHMirror.translate(0, -m_viewfinder->boundingRect().height());
-    }
-    updateViewfinderTransformations();
-}
 
 void VizualizatorWidget::resizeEvent(QResizeEvent *)
 {
@@ -690,3 +692,38 @@ void VizualizatorWidget::hideEvent(QHideEvent *)
 }
 
 
+
+void VizualizatorWidget::on_tabWidget_currentChanged(int index)
+{
+    switch(index)
+    {
+    case 0: // TAb Camera
+        ui->tbToolPanel->setCurrentWidget(ui->pageCamera);
+        break;
+    case 1: // tab Gallery
+        ui->tbToolPanel->setCurrentWidget(ui->pageImagesSettings);
+        break;
+    default:
+        // On ne fait rien
+        break;
+    }
+}
+
+void VizualizatorWidget::on_tbToolPanel_currentChanged(int index)
+{
+    switch(index)
+    {
+    case 0: // TAb Camera
+        ui->tabWidget->setCurrentWidget(ui->tabCamera1);
+        break;
+    case 1: // tab Gallery
+        ui->tabWidget->setCurrentWidget(ui->tabGallery);
+        break;
+    case 3:
+        // Pas implémenté
+        break;
+    default:
+        // On ne fait rien
+        break;
+    }
+}

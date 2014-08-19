@@ -113,6 +113,10 @@ private slots:
     void on_btnFullScreenImage_clicked();
 
     void hideEvent(QHideEvent *);
+    void on_tabWidget_currentChanged(int index);
+
+    void on_tbToolPanel_currentChanged(int index);
+
 private:
     bool m_localDebug;
     Ui::VizualizatorWidget *ui;
@@ -127,8 +131,8 @@ private:
     QMediaRecorder* m_mediaRecorder;
 
     QTransform m_transformRotation;
-    QTransform m_transformVMirror;
-    QTransform m_transformHMirror;
+    QTransform m_transformYaxisMirror;
+    QTransform m_transformXaxisMirror;
     QList<QTransform> m_transformations;
     QImageEncoderSettings m_imageSettings;
     QAudioEncoderSettings m_audioSettings;
