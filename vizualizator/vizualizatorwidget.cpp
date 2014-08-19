@@ -120,9 +120,9 @@ QByteArray VizualizatorWidget::vizualizatorGetCameras()
 
     return cameraDevice; // La camera par défaut
 }
-QToolBox *VizualizatorWidget::VizualizatorWidgetGetToolBox()
+QWidget *VizualizatorWidget::VizualizatorWidgetGetToolBox()
 {
-    return ui->tbToolPanel;
+    return ui->widgetToolPanel;
 }
 
 void VizualizatorWidget::setCamera(const QByteArray &cameraDevice)
@@ -192,8 +192,6 @@ void VizualizatorWidget::updateRecordTime()
 void VizualizatorWidget::showResizedImage()
 {
     if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__;
-//    ui->gvImage->ensurePolished();
-
     ui->gvImage->setSceneRect(ui->gvImage->rect());
     if(ui->cbNativeImage->isChecked())
     {
@@ -208,10 +206,9 @@ void VizualizatorWidget::showResizedImage()
                                                      .scaled(ui->gvImage->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation);
         m_imageItem->setPixmap(QPixmap::fromImage(scaledImage));
     }
-    qDebug()<<__LINE__<<ui->gvImage->width()<<m_imageItem->boundingRect().width()<< (ui->gvImage->width()-m_imageItem->boundingRect().width())/2;
+//    qDebug()<<__LINE__<<ui->gvImage->width()<<m_imageItem->boundingRect().width()<< (ui->gvImage->width()-m_imageItem->boundingRect().width())/2;
     m_imageItem->setPos((ui->gvImage->width()-m_imageItem->boundingRect().width())/2,
                         (ui->gvImage->height()-m_imageItem->boundingRect().height())/2);
-    qDebug()<<m_imageItem->pos();
 }
 
 void VizualizatorWidget::processCapturedImage(int requestId, const QImage& img)

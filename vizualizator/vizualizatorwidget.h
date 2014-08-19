@@ -63,7 +63,7 @@ public:
     /// \endcode
     /// \return Pointeur vers QToolBox
     ///
-    QToolBox * VizualizatorWidgetGetToolBox();
+    QWidget *VizualizatorWidgetGetToolBox();
     QByteArray vizualizatorGetCameras();
 private slots:
 
