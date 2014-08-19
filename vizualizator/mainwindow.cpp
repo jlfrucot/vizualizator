@@ -36,7 +36,6 @@ MainWindow::MainWindow(QWidget *parent) :
     /* Pour le fun */
 //    ui->widgetVizu->VizualizatorWidgetGetToolBox()->setParent(0);
 //    ui->widgetVizu->VizualizatorWidgetGetToolBox()->show();
-
     ui->dockWidget->setWidget(ui->widgetVizu->VizualizatorWidgetGetToolBox());
 }
 

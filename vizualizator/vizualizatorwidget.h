@@ -110,6 +110,7 @@ private slots:
 
     void on_btnFullScreenImage_clicked();
 
+    bool event(QEvent *event);
 private:
     bool m_localDebug;
     Ui::VizualizatorWidget *ui;

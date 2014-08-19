@@ -41,8 +41,10 @@ VizualizatorWidget::VizualizatorWidget(QWidget *parent) :
     m_applicationExiting(false)
 {
     m_localDebug = true;
+    setAttribute(Qt::WA_DeleteOnClose);
     ui->setupUi(this);
     ui->tbToolPanel->setCurrentWidget(ui->pageCamera);
+    m_fullscreenLabels.clear();
 
     m_scene = new QGraphicsScene();
     ui->gvCameraView->setScene(m_scene);
@@ -77,11 +79,17 @@ VizualizatorWidget::~VizualizatorWidget()
     {
         delete m_image;
     }
-       if (m_camera)
-       {
-           m_camera->stop();
-           delete m_camera;
-       }
+    if (m_camera)
+    {
+        m_camera->stop();
+        delete m_camera;
+    }
+//    foreach (QLabel *label, m_fullscreenLabels)
+//    {
+//        qDebug()<<"//////////////////////////////// LAbels Destructor";
+//        label->close();
+//        label->deleteLater();
+//    }
     delete ui;
 }
 
@@ -484,6 +492,21 @@ void VizualizatorWidget::closeEvent(QCloseEvent *event)
     }
 }
 
+bool VizualizatorWidget::event(QEvent *event)
+{
+//    if (m_localDebug) qDebug()<<"+++++++++++++++++++++++++++++++++++++++++++++++++++Event type"<<event->type();
+    if(event->type()== QEvent::Hide)
+    {
+        foreach (QLabel *label, m_fullscreenLabels)
+        {
+           if (m_localDebug)  qDebug()<<"FullScreen Labels Destructor";
+            label->close();
+            label->deleteLater();
+        }
+        m_fullscreenLabels.clear();
+    }
+}
+
 void VizualizatorWidget::on_btnTakePicture_clicked()
 {
     if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__;
@@ -658,6 +681,9 @@ void VizualizatorWidget::on_btnFullScreenImage_clicked()
         QLabel *label = new QLabel();
         label->setAlignment(Qt::AlignCenter);
         label->setPixmap(QPixmap::fromImage(scaledImage));
+        m_fullscreenLabels.append(label);
         label->showMaximized();
     }
 }
+
+
