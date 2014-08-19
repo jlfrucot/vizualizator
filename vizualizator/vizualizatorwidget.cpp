@@ -542,7 +542,14 @@ void VizualizatorWidget::on_dialOrientation_valueChanged(int value)
     m_transformRotation.rotate(value);
     m_transformRotation.translate(-m_viewfinder->boundingRect().center().x(),-m_viewfinder->boundingRect().center().y());
 //    m_viewfinder->setTransform(m_transformRotation);
-    updateViewfinderTransformations();
+    if(ui->tabWidget->currentWidget() == ui->tabCamera1)
+    {
+        updateViewfinderTransformations();
+    }
+    else if(ui->tabWidget->currentWidget() == ui->tabGallery)
+    {
+        showResizedImage();
+    }
 }
 
 void VizualizatorWidget::on_rbRotate0deg_clicked(bool checked)
