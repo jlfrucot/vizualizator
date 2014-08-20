@@ -224,6 +224,7 @@ void VizualizatorWidget::processCapturedImage(int requestId, const QImage& img)
         m_imageItem = new QGraphicsPixmapItem();
         m_sceneImage->addItem(m_imageItem);
     }
+    /* On va garder les m_image pour voir les réafficher à la demande */
 //    if(m_image)
 //    {
 //        delete m_image;
@@ -742,5 +743,9 @@ void VizualizatorWidget::on_lwGallery_itemClicked(QListWidgetItem *item)
     /* On va réafficher l'image correspondant à l'item sélectionné */
     qDebug()<<"------------------------------------------"<<VariantPtr<VizualizatorImage>::asPtr(item->data(ImagePointer));
     m_image = VariantPtr<VizualizatorImage>::asPtr(item->data(ImagePointer));
+    ui->dialOrientation->setValue(item->data(Rotation).toInt());
+    ui->btnXaxisMirror->setChecked(item->data(FlipXaxis).toBool());
+    ui->btnYaxisMirror->setChecked(item->data(FlipYaxis).toBool());
+    ui->cbNativeImage->setChecked(false);
     showResizedImage();
 }
