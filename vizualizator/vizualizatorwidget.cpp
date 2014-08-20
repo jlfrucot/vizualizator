@@ -157,12 +157,13 @@ void VizualizatorWidget::setCamera(const QByteArray &cameraDevice)
      * Avec beaucoup de connect : on fera le ménage plus tard
      */
     m_imageCapture = new QCameraImageCapture(m_camera);
+    m_imageCapture->setCaptureDestination(QCameraImageCapture::CaptureToBuffer);
     connect(m_imageCapture, SIGNAL(readyForCaptureChanged(bool)), this, SLOT(slotReadyForCapture(bool)), Qt::UniqueConnection);
     connect(m_imageCapture, SIGNAL(imageExposed(int)), this, SLOT(slotImageExposed(int)), Qt::UniqueConnection);
     connect(m_imageCapture, SIGNAL(imageCaptured(int,QImage)), this, SLOT(processCapturedImage(int,QImage)));
     connect(m_imageCapture, SIGNAL(imageSaved(int,QString)), this, SLOT(imageSaved(int,QString)));
-    connect(m_imageCapture, SIGNAL(error(int,QCameraImageCapture::Error,QString)), this,
-            SLOT(displayCaptureError(int,QCameraImageCapture::Error,QString)));
+    connect(m_imageCapture, SIGNAL(error(int,QCameraImageCapture::Error,QString)),
+            this,           SLOT(displayCaptureError(int,QCameraImageCapture::Error,QString)));
 
     /* On affiche la caméra dans le bon widget */
     m_camera->setViewfinder(m_viewfinder);
@@ -476,7 +477,7 @@ void VizualizatorWidget::displayCameraError()
 
 void VizualizatorWidget::imageSaved(int id, const QString &fileName)
 {
-    if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__;
+    if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__<<fileName;
     Q_UNUSED(id);
     Q_UNUSED(fileName);
 

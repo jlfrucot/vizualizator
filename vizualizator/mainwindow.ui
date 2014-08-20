@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>956</width>
+    <width>990</width>
     <height>685</height>
    </rect>
   </property>
@@ -14,12 +14,9 @@
    <string>MainWindow</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">background-color: rgb(84, 84, 84);</string>
+   <string notr="true">background-color: qlineargradient(spread:pad, x1:0.5, y1:1, x2:0.492, y2:0.006, stop:0.0116279 rgba(86, 86, 86, 255), stop:1 rgba(154, 154, 154, 255));</string>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <property name="styleSheet">
-    <string notr="true">background-color: rgb(84, 84, 84);</string>
-   </property>
    <layout class="QVBoxLayout" name="verticalLayout">
     <property name="spacing">
      <number>0</number>
@@ -28,13 +25,13 @@
      <number>5</number>
     </property>
     <property name="topMargin">
-     <number>0</number>
+     <number>5</number>
     </property>
     <property name="rightMargin">
      <number>5</number>
     </property>
     <property name="bottomMargin">
-     <number>0</number>
+     <number>5</number>
     </property>
     <item>
      <widget class="VizualizatorWidget" name="widgetVizu" native="true"/>
@@ -42,11 +39,14 @@
    </layout>
   </widget>
   <widget class="QMenuBar" name="menuBar">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>956</width>
+     <width>990</width>
      <height>25</height>
     </rect>
    </property>
@@ -69,19 +69,15 @@
    <addaction name="menuFichier"/>
    <addaction name="menuCamera"/>
   </widget>
-  <widget class="QStatusBar" name="statusBar">
-   <property name="styleSheet">
-    <string notr="true">background-color: rgb(84, 84, 84);</string>
-   </property>
-  </widget>
   <widget class="QDockWidget" name="dockWidget">
    <property name="autoFillBackground">
     <bool>false</bool>
    </property>
    <property name="styleSheet">
-    <string notr="true">background-color: rgb(39, 39, 39);
+    <string notr="true">/*
+background-color: rgb(39, 39, 39);
 border-color: rgb(84, 84, 84);
-</string>
+*/</string>
    </property>
    <property name="features">
     <set>QDockWidget::AllDockWidgetFeatures</set>
@@ -94,7 +90,7 @@ border-color: rgb(84, 84, 84);
    </attribute>
    <widget class="QWidget" name="dockWidgetContents">
     <property name="styleSheet">
-     <string notr="true">background-color: rgb(28, 28, 28);</string>
+     <string notr="true">/*background-color: rgb(28, 28, 28);*/</string>
     </property>
    </widget>
   </widget>
