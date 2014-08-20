@@ -67,6 +67,7 @@ public:
     ///
     QWidget *VizualizatorWidgetGetToolBox();
     QByteArray vizualizatorGetCameras();
+    void restoreUiFromItem(QListWidgetItem *item);
 private slots:
 
     void showResizedImage();
@@ -121,6 +122,7 @@ private slots:
 
     void on_lwGallery_itemClicked(QListWidgetItem *item);
 
+    void slotUpdateThumbnailItem();
 private:
     bool m_localDebug;
     Ui::VizualizatorWidget *ui;
@@ -129,7 +131,7 @@ private:
     QCamera *m_camera;
     QCameraImageCapture *m_imageCapture;
     QGraphicsPixmapItem *m_imageItem;
-    VizualizatorImage *m_image;
+    VizualizatorImage *m_currentImage;
     QList<QLabel *>m_fullscreenLabels;
     QGraphicsVideoItem *m_viewfinder;
     QMediaRecorder* m_mediaRecorder;

@@ -34,7 +34,7 @@ VizualizatorWidget::VizualizatorWidget(QWidget *parent) :
     m_camera(0),
     m_imageCapture(0),
     m_imageItem(0),
-    m_image(0),
+    m_currentImage(0),
     m_viewfinder(0),
     m_mediaRecorder(0),
     m_isCapturingImage(false),
@@ -76,9 +76,9 @@ VizualizatorWidget::VizualizatorWidget(QWidget *parent) :
 
 VizualizatorWidget::~VizualizatorWidget()
 {
-    if(m_image)
+    if(m_currentImage)
     {
-        delete m_image;
+        delete m_currentImage;
     }
     if (m_camera)
     {
@@ -192,15 +192,19 @@ void VizualizatorWidget::updateRecordTime()
 void VizualizatorWidget::showResizedImage()
 {
     if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__;
+    if(!m_currentImage)
+    {
+        return;
+    }
     ui->gvImage->setSceneRect(ui->gvImage->rect());
     if(ui->cbNativeImage->isChecked())
     {
-        QImage scaledImage = m_image->getOriginalImage().scaled(ui->gvImage->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation);
+        QImage scaledImage = m_currentImage->getOriginalImage().scaled(ui->gvImage->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation);
         m_imageItem->setPixmap(QPixmap::fromImage(scaledImage));
     }
     else
     {
-        QImage scaledImage = m_image->getRotatedImage((360-ui->dialOrientation->value())%360,
+        QImage scaledImage = m_currentImage->getRotatedImage((360-ui->dialOrientation->value())%360,
                                                       ui->btnXaxisMirror->isChecked(),
                                                       ui->btnYaxisMirror->isChecked())
                                                      .scaled(ui->gvImage->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation);
@@ -209,6 +213,7 @@ void VizualizatorWidget::showResizedImage()
 //    qDebug()<<__LINE__<<ui->gvImage->width()<<m_imageItem->boundingRect().width()<< (ui->gvImage->width()-m_imageItem->boundingRect().width())/2;
     m_imageItem->setPos((ui->gvImage->width()-m_imageItem->boundingRect().width())/2,
                         (ui->gvImage->height()-m_imageItem->boundingRect().height())/2);
+
 }
 
 void VizualizatorWidget::processCapturedImage(int requestId, const QImage& img)
@@ -229,23 +234,24 @@ void VizualizatorWidget::processCapturedImage(int requestId, const QImage& img)
 //    {
 //        delete m_image;
 //    }
-    m_image = new VizualizatorImage(img);
+    m_currentImage = new VizualizatorImage(img);
     /* Pour laisser le temps au widget de prendre sa taille ??? */
     QTimer::singleShot(100,this,SLOT(showResizedImage()));
 
     /* On crée et affiche un thumbnail */
     QListWidgetItem *item = new QListWidgetItem();
     /* On garde le pointeur de m_image avec l'item */
-    item->setData(ImagePointer,VariantPtr<VizualizatorImage>::asQVariant(m_image));
-    qDebug()<<"------------------------------------------"<<VariantPtr<VizualizatorImage>::asQVariant(m_image);
+    item->setData(ImagePointer,VariantPtr<VizualizatorImage>::asQVariant(m_currentImage));
+    qDebug()<<"------------------------------------------"<<VariantPtr<VizualizatorImage>::asQVariant(m_currentImage);
      /*Ce sera pour garder le chemin du fichier*/
     item->setData(FilePath,"");
-    item->setData(Rotation, ui->dialOrientation->value());
-    item->setData(FlipXaxis, ui->btnXaxisMirror->isChecked());
-    item->setData(FlipYaxis, ui->btnYaxisMirror->isChecked());
-    item->setIcon(QPixmap::fromImage(m_image->getThumbnail()));
+//    item->setData(Rotation, ui->dialOrientation->value());
+//    item->setData(FlipXaxis, ui->btnXaxisMirror->isChecked());
+//    item->setData(FlipYaxis, ui->btnYaxisMirror->isChecked());
+//    item->setIcon(QPixmap::fromImage(m_currentImage->getThumbnail()));
     ui->lwGallery->insertItem(ui->lwGallery->count(),item);
     ui->lwGallery->setCurrentItem(item);
+    slotUpdateThumbnailItem();
 
 }
 
@@ -556,6 +562,7 @@ void VizualizatorWidget::on_dialOrientation_valueChanged(int value)
     else if(ui->tabWidget->currentWidget() == ui->tabGallery)
     {
         showResizedImage();
+        slotUpdateThumbnailItem();
     }
 }
 
@@ -605,6 +612,8 @@ void VizualizatorWidget::on_btnYaxisMirror_clicked(bool checked)
         m_transformYaxisMirror.translate(-m_viewfinder->boundingRect().width(), 0);
     }
     updateViewfinderTransformations();
+    showResizedImage();
+    slotUpdateThumbnailItem();
 }
 
 void VizualizatorWidget::on_btnXaxisMirror_clicked(bool checked)
@@ -617,6 +626,8 @@ void VizualizatorWidget::on_btnXaxisMirror_clicked(bool checked)
         m_transformXaxisMirror.translate(0, -m_viewfinder->boundingRect().height());
     }
     updateViewfinderTransformations();
+    showResizedImage();
+    slotUpdateThumbnailItem();
 }
 
 void VizualizatorWidget::updateViewfinderTransformations()
@@ -667,13 +678,13 @@ void VizualizatorWidget::on_btnFullScreenImage_clicked()
     if(ui->cbNativeImage->isChecked())
     {
         QSize size = QApplication::desktop()->availableGeometry().size();
-        scaledImage = m_image->getOriginalImage().scaled(size, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+        scaledImage = m_currentImage->getOriginalImage().scaled(size, Qt::KeepAspectRatio, Qt::SmoothTransformation);
     }
     else
     {
         QSize size = QApplication::desktop()->availableGeometry().size();
         {
-            scaledImage = m_image->getRotatedImage((360-ui->dialOrientation->value())%360,
+            scaledImage = m_currentImage->getRotatedImage((360-ui->dialOrientation->value())%360,
                                                           ui->btnXaxisMirror->isChecked(),
                                                           ui->btnYaxisMirror->isChecked())
                                                   .scaled(size,Qt::KeepAspectRatio,Qt::SmoothTransformation);
@@ -737,15 +748,38 @@ void VizualizatorWidget::on_tbToolPanel_currentChanged(int index)
     }
 }
 
+void VizualizatorWidget::restoreUiFromItem(QListWidgetItem *item)
+{
+    if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__;
+    ui->dialOrientation->setValue(item->data(Rotation).toInt());
+    ui->btnXaxisMirror ->setChecked(item->data(FlipXaxis).toBool());
+    ui->btnYaxisMirror ->setChecked(item->data(FlipYaxis).toBool());
+    ui->cbNativeImage  ->setChecked(false);     // Pourquoi pas ?
+}
+
 void VizualizatorWidget::on_lwGallery_itemClicked(QListWidgetItem *item)
 {
     if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__;
     /* On va réafficher l'image correspondant à l'item sélectionné */
-    qDebug()<<"------------------------------------------"<<VariantPtr<VizualizatorImage>::asPtr(item->data(ImagePointer));
-    m_image = VariantPtr<VizualizatorImage>::asPtr(item->data(ImagePointer));
-    ui->dialOrientation->setValue(item->data(Rotation).toInt());
-    ui->btnXaxisMirror->setChecked(item->data(FlipXaxis).toBool());
-    ui->btnYaxisMirror->setChecked(item->data(FlipYaxis).toBool());
-    ui->cbNativeImage->setChecked(false);
+//    qDebug()<<"------------------------------------------"<<VariantPtr<VizualizatorImage>::asPtr(item->data(ImagePointer));
+    m_currentImage = VariantPtr<VizualizatorImage>::asPtr(item->data(ImagePointer));
+    restoreUiFromItem(item);
     showResizedImage();
 }
+
+void VizualizatorWidget::slotUpdateThumbnailItem()
+{
+    if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__;
+    QListWidgetItem *item = ui->lwGallery->currentItem();
+    if(item)
+    {
+        item->setData(Rotation, ui->dialOrientation->value());
+        item->setData(FlipXaxis, ui->btnXaxisMirror->isChecked());
+        item->setData(FlipYaxis, ui->btnYaxisMirror->isChecked());
+        item->setIcon(QPixmap::fromImage(m_currentImage->getThumbnail(ui->lwGallery->iconSize(),
+                                                                      ui->dialOrientation->value(),
+                                                                      ui->btnXaxisMirror->isChecked(),
+                                                                      ui->btnYaxisMirror->isChecked())));
+    }
+}
+

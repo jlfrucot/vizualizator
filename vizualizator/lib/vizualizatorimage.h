@@ -3,6 +3,7 @@
 
 #include <QImage>
 #include <QDebug>
+#include <QMatrix>
 #ifdef WITH_OPENCV2
   #include <opencv2/highgui/highgui.hpp>
   #include <opencv2/imgproc/imgproc.hpp>
@@ -22,7 +23,7 @@ public:
     ///
     QImage getRotatedImage(int angle, bool xAxisMirror = false, bool yAxisMirror = false);
 
-    QImage getThumbnail(QSize size = QSize(128,128));
+    QImage getThumbnail(QSize size = QSize(128,128), int rotation = 0, bool xAxisMirror = false, bool yAxisMirror = false );
 private:
     const QImage m_image;
     int m_angle;

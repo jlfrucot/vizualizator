@@ -25,6 +25,8 @@ QImage VizualizatorImage::getRotatedImage(int angle, bool xAxisMirror, bool yAxi
     {
         cv::flip(matOriginal, matOriginal,1); // yAxis
     }
+    if(angle)
+    {
     /* On crée une matrice dont les dimensions sont celles d'un carré de côté la diagonale de l'image
      * Comme cela l'image tournée tiendra dedans sans cropping
      */
@@ -98,11 +100,41 @@ QImage VizualizatorImage::getRotatedImage(int angle, bool xAxisMirror, bool yAxi
     ROI.copyTo(croppedResult);
 
     return cvMatToQimage(croppedResult, m_image.format());
+    }
+    else
+    {
+        QImage image(getOriginalImage());
+        if(xAxisMirror)
+        {
+            image = image.mirrored(false, true);
+        }
+        if(yAxisMirror)
+        {
+            image = image.mirrored(true, false);
+        }
+        return image;
+    }
 }
 
-QImage VizualizatorImage::getThumbnail(QSize size)
+QImage VizualizatorImage::getThumbnail(QSize size, int rotation, bool xAxisMirror, bool yAxisMirror )
 {
-    return m_image.scaled(size, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    QImage thumbnail = m_image.scaled(size, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    if(xAxisMirror)
+    {
+        thumbnail = thumbnail.mirrored(false, true);
+    }
+    if(yAxisMirror)
+    {
+        thumbnail = thumbnail.mirrored(true, false);
+    }
+    if(rotation)
+    {
+        QMatrix matrixRotate;
+        matrixRotate.reset();
+        matrixRotate.rotate(rotation);
+        thumbnail = thumbnail.transformed(matrixRotate);
+    }
+    return thumbnail;
 }
 
 /* Convertit une cv::Mat en QImage avec copie */
