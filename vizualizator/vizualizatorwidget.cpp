@@ -222,21 +222,26 @@ void VizualizatorWidget::processCapturedImage(int requestId, const QImage& img)
     if(!m_imageItem)
     {
         m_imageItem = new QGraphicsPixmapItem();
-//    ui->gvImage->fitInView(m_imageItem, Qt::KeepAspectRatio);
-//        m_imageItem->setSize(ui->gvImage->size());
         m_sceneImage->addItem(m_imageItem);
     }
-    if(m_image)
-    {
-        delete m_image;
-    }
+//    if(m_image)
+//    {
+//        delete m_image;
+//    }
     m_image = new VizualizatorImage(img);
     /* Pour laisser le temps au widget de prendre sa taille ??? */
     QTimer::singleShot(100,this,SLOT(showResizedImage()));
-    QListWidgetItem *item = new QListWidgetItem();
 
-//    item->setData(Qt::UserRole+1,nomFichier);
-//    item->setData(Qt::UserRole+2,m_numImageSeq);
+    /* On crée et affiche un thumbnail */
+    QListWidgetItem *item = new QListWidgetItem();
+    /* On garde le pointeur de m_image avec l'item */
+    item->setData(ImagePointer,VariantPtr<VizualizatorImage>::asQVariant(m_image));
+    qDebug()<<"------------------------------------------"<<VariantPtr<VizualizatorImage>::asQVariant(m_image);
+     /*Ce sera pour garder le chemin du fichier*/
+    item->setData(FilePath,"");
+    item->setData(Rotation, ui->dialOrientation->value());
+    item->setData(FlipXaxis, ui->btnXaxisMirror->isChecked());
+    item->setData(FlipYaxis, ui->btnYaxisMirror->isChecked());
     item->setIcon(QPixmap::fromImage(m_image->getThumbnail()));
     ui->lwGallery->insertItem(ui->lwGallery->count(),item);
     ui->lwGallery->setCurrentItem(item);
@@ -682,6 +687,7 @@ void VizualizatorWidget::on_btnFullScreenImage_clicked()
 
 void VizualizatorWidget::hideEvent(QHideEvent *)
 {
+    if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__;
     foreach (QLabel *label, m_fullscreenLabels)
     {
        if (m_localDebug)  qDebug()<<"FullScreen Labels Destructor";
@@ -695,6 +701,7 @@ void VizualizatorWidget::hideEvent(QHideEvent *)
 
 void VizualizatorWidget::on_tabWidget_currentChanged(int index)
 {
+    if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__;
     switch(index)
     {
     case 0: // TAb Camera
@@ -711,6 +718,7 @@ void VizualizatorWidget::on_tabWidget_currentChanged(int index)
 
 void VizualizatorWidget::on_tbToolPanel_currentChanged(int index)
 {
+    if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__;
     switch(index)
     {
     case 0: // TAb Camera
@@ -726,4 +734,13 @@ void VizualizatorWidget::on_tbToolPanel_currentChanged(int index)
         // On ne fait rien
         break;
     }
+}
+
+void VizualizatorWidget::on_lwGallery_itemClicked(QListWidgetItem *item)
+{
+    if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__;
+    /* On va réafficher l'image correspondant à l'item sélectionné */
+    qDebug()<<"------------------------------------------"<<VariantPtr<VizualizatorImage>::asPtr(item->data(ImagePointer));
+    m_image = VariantPtr<VizualizatorImage>::asPtr(item->data(ImagePointer));
+    showResizedImage();
 }

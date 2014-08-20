@@ -36,9 +36,11 @@ class VizualizatorWidget : public QWidget
 {
     Q_OBJECT
 
+    Q_ENUMS(ThumbnailRole)
     Q_FLAGS(Flip Flips)
 public:
 
+    enum ThumbnailRole{ImagePointer = Qt::UserRole+1, FilePath = Qt::UserRole+2, Rotation = Qt::UserRole+3, FlipXaxis = Qt::UserRole+4, FlipYaxis = Qt::UserRole+5};
     enum Flip{FlipHorizontal = 1, FlipVertical = 2};
     Q_DECLARE_FLAGS(Flips, Flip)
     explicit VizualizatorWidget(QWidget *parent = 0);
@@ -117,6 +119,8 @@ private slots:
 
     void on_tbToolPanel_currentChanged(int index);
 
+    void on_lwGallery_itemClicked(QListWidgetItem *item);
+
 private:
     bool m_localDebug;
     Ui::VizualizatorWidget *ui;
@@ -155,6 +159,28 @@ private:
     void startCamera();
     void stopCamera();
 
+};
+
+/// @brief conversion de pointer void* en Qvariant et vice versa
+/// @code
+/// MyClass *p;
+/// QVariant v = VariantPtr<MyClass>::asQVariant(p);
+/// /* Retrouver le pointer */
+/// MyClass *p1 = VariantPtr<MyClass>::asPtr(v);
+/// @endcode
+template <class T> class VariantPtr
+{
+public:
+    /* Retrouver le pointeur */
+    static T* asPtr(QVariant v)
+    {
+        return  (T *) v.value<void *>();
+    }
+    /* Transformer le pointeur en QVariant */
+    static QVariant asQVariant(T* ptr)
+    {
+        return qVariantFromValue((void *) ptr);
+    }
 };
 
 
