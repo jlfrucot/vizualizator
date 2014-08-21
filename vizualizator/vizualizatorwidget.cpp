@@ -111,9 +111,10 @@ QByteArray VizualizatorWidget::vizualizatorGetCameras()
         {
             cameraDevice = deviceName;
             videoDeviceAction->setChecked(true);
-            ui->lbCameraName->setText(videoDeviceAction->text());
         }
 
+        // On va remplir la combobox de sélection de camera avec la description et le pointeur vers la QAction
+        ui->cBoxSelectCam->insertItem(ui->cBoxSelectCam->count(),description, VariantPtr<QAction>::asQVariant(videoDeviceAction));
     }
     /* Pour changer de caméra */
     connect(m_videoDevicesGroup, SIGNAL(triggered(QAction*)), SLOT(updateCameraDevice(QAction*)));
@@ -180,7 +181,6 @@ void VizualizatorWidget::updateCameraDevice(QAction *action)
 {
     if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__<<action->text();
     setCamera(action->data().toByteArray());
-    ui->lbCameraName->setText(action->text());
     // On maximise la taille de la caméra dans la QGraphicsView
     ui->gvCameraView->fitInView(m_viewfinder, Qt::KeepAspectRatio);
 }
@@ -689,13 +689,18 @@ void VizualizatorWidget::on_btnFullScreenImage_clicked()
                                                           ui->btnXaxisMirror->isChecked(),
                                                           ui->btnYaxisMirror->isChecked())
                                                   .scaled(size,Qt::KeepAspectRatio,Qt::SmoothTransformation);
-        }
-        QLabel *label = new QLabel();
-        label->setAlignment(Qt::AlignCenter);
-        label->setPixmap(QPixmap::fromImage(scaledImage));
-        m_fullscreenLabels.append(label);
-        label->showMaximized();
+        }        
+        showFullScreen(scaledImage);
     }
+}
+
+void VizualizatorWidget::showFullScreen(QImage scaledImage)
+{
+    QLabel *label = new QLabel();
+    label->setAlignment(Qt::AlignCenter);
+    label->setPixmap(QPixmap::fromImage(scaledImage));
+    m_fullscreenLabels.append(label);
+    label->showMaximized();
 }
 
 void VizualizatorWidget::hideEvent(QHideEvent *)
@@ -784,3 +789,9 @@ void VizualizatorWidget::slotUpdateThumbnailItem()
     }
 }
 
+
+void VizualizatorWidget::on_cBoxSelectCam_currentIndexChanged(int index)
+{
+    // On va récupérer le pointeur de la QAction et la déclencher
+    updateCameraDevice(VariantPtr<QAction>::asPtr(ui->cBoxSelectCam->itemData(index, Qt::UserRole)));
+}

@@ -5,6 +5,7 @@
 #include <QDesktopWidget>
 #include <QSize>
 #include <QWidget>
+#include <QLabel>
 #include <QToolBox>
 #include <QTransform>
 #include <QMessageBox>
@@ -68,6 +69,7 @@ public:
     QWidget *VizualizatorWidgetGetToolBox();
     QByteArray vizualizatorGetCameras();
     void restoreUiFromItem(QListWidgetItem *item);
+    void showFullScreen(QImage scaledImage);
 private slots:
 
     void showResizedImage();
@@ -123,6 +125,8 @@ private slots:
     void on_lwGallery_itemClicked(QListWidgetItem *item);
 
     void slotUpdateThumbnailItem();
+    void on_cBoxSelectCam_currentIndexChanged(int index);
+
 private:
     bool m_localDebug;
     Ui::VizualizatorWidget *ui;

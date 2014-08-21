@@ -31,11 +31,11 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    /* On place la liste des QActions dans le menu Caméras de la mainwindow */
+    /* On place la liste des QActions dans le menu Caméras de la mainwindow si on veut */
     ui->menuCamera->addActions(ui->widgetVizu->vizualizatorWidgetGetVideoDevicesGroup()->actions());
-    /* Pour le fun */
-//    ui->widgetVizu->VizualizatorWidgetGetToolBox()->setParent(0);
-//    ui->widgetVizu->VizualizatorWidgetGetToolBox()->show();
+    /* Pour le fun
+     * Les deux lignes suivantes ne sont pas nécessaires c'est ppour la démo ;-)
+     */
     ui->menuBar->setVisible(false);
     ui->dockWidget->setWidget(ui->widgetVizu->VizualizatorWidgetGetToolBox());
 }
