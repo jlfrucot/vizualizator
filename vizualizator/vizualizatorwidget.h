@@ -38,19 +38,19 @@ class VizualizatorWidget : public QWidget
     Q_OBJECT
 
     Q_ENUMS(ThumbnailRole)
-    Q_FLAGS(Flip Flips)
+//    Q_FLAGS(Flip Flips)
 public:
 
     enum ThumbnailRole{ImagePointer = Qt::UserRole+1, FilePath = Qt::UserRole+2, Rotation = Qt::UserRole+3, FlipXaxis = Qt::UserRole+4, FlipYaxis = Qt::UserRole+5};
-    enum Flip{FlipHorizontal = 1, FlipVertical = 2};
-    Q_DECLARE_FLAGS(Flips, Flip)
+//    enum Flip{FlipHorizontal = 1, FlipVertical = 2};
+//    Q_DECLARE_FLAGS(Flips, Flip)
     explicit VizualizatorWidget(QWidget *parent = 0);
     ~VizualizatorWidget();
     ///
     /// \brief Fournit un pointeur vers un QActionGroup présentant la liste des caméras connectées
     ///
     /// \return La liste des caméras connectées sous forme d'un QActionGroup
-    /// \code{.cpp}
+    /// \code
     ///     /* On place la liste des QActions dans le menu Caméras de la mainwindow */
     ///     ui->menuCamera->addActions(ui->widgetVizu->vizualizatorWidgetGetVideoDevicesGroup()->actions());
     /// \endcode
@@ -70,6 +70,18 @@ public:
     QByteArray vizualizatorGetCameras();
     void restoreUiFromItem(QListWidgetItem *item);
     void showFullScreen(QImage scaledImage);
+    int rotation() const;
+    void setRotation(int rotation);
+
+    bool isFlipXaxis() const;
+    void setFlipXaxis(bool flipXaxis);
+
+    bool isFlipYaxis() const;
+    void setFlipYaxis(bool flipYaxis);
+
+    QSize getIconSize() const;
+    void setIconSize(const QSize &iconSize);
+
 private slots:
 
     void showResizedImage();
@@ -127,9 +139,15 @@ private slots:
     void slotUpdateThumbnailItem();
     void on_cBoxSelectCam_currentIndexChanged(int index);
 
+    void on_vSBrightness_valueChanged(int value);
+    
 private:
     bool m_localDebug;
     Ui::VizualizatorWidget *ui;
+    int m_rotation;
+    bool m_flipXaxis;
+    bool m_flipYaxis;
+    QSize m_iconSize;
     QGraphicsScene *m_scene;
     QGraphicsScene *m_sceneImage;
     QCamera *m_camera;

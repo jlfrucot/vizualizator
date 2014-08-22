@@ -171,10 +171,12 @@ void VizualizatorWidget::setCamera(const QByteArray &cameraDevice)
     connect(m_camera, SIGNAL(lockStatusChanged(QCamera::LockStatus, QCamera::LockChangeReason)),
             this, SLOT(updateLockStatus(QCamera::LockStatus, QCamera::LockChangeReason)));
 
+    m_camera->searchAndLock();
     updateCameraState(m_camera->state());
     updateLockStatus(m_camera->lockStatus(), QCamera::UserRequest);
     updateRecorderState(m_mediaRecorder->state());
     updateCaptureMode();
+
     m_camera->start(); // Et c'est parti
 }
 void VizualizatorWidget::updateCameraDevice(QAction *action)
@@ -197,24 +199,28 @@ void VizualizatorWidget::showResizedImage()
     {
         return;
     }
-    ui->gvImage->setSceneRect(ui->gvImage->rect());
-    if(ui->cbNativeImage->isChecked())
-    {
-        QImage scaledImage = m_currentImage->getOriginalImage().scaled(ui->gvImage->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation);
-        m_imageItem->setPixmap(QPixmap::fromImage(scaledImage));
-    }
     else
     {
-        QImage scaledImage = m_currentImage->getRotatedImage((360-ui->dialOrientation->value())%360,
-                                                      ui->btnXaxisMirror->isChecked(),
-                                                      ui->btnYaxisMirror->isChecked())
-                                                     .scaled(ui->gvImage->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation);
-        m_imageItem->setPixmap(QPixmap::fromImage(scaledImage));
+        m_currentImage->setAngleRotation(ui->dialOrientation->value());
+        m_currentImage->setFlipXaxis(ui->btnXaxisMirror->isChecked());
+        m_currentImage->setFlipYaxis(ui->btnYaxisMirror->isChecked());
+        ui->gvImage->setSceneRect(ui->gvImage->rect());
+        if(ui->cbNativeImage->isChecked())
+        {
+            QImage scaledImage = m_currentImage->getOriginalImage().scaled(ui->gvImage->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation);
+            m_imageItem->setPixmap(QPixmap::fromImage(scaledImage));
+        }
+        else
+        {
+            QImage scaledImage = m_currentImage->getRotatedImage()
+                    .scaled(ui->gvImage->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation);
+            m_imageItem->setPixmap(QPixmap::fromImage(scaledImage));
+        }
+        //    qDebug()<<__LINE__<<ui->gvImage->width()<<m_imageItem->boundingRect().width()<< (ui->gvImage->width()-m_imageItem->boundingRect().width())/2;
+        m_imageItem->setPos((ui->gvImage->width()-m_imageItem->boundingRect().width())/2,
+                            (ui->gvImage->height()-m_imageItem->boundingRect().height())/2);
+        slotUpdateThumbnailItem();
     }
-//    qDebug()<<__LINE__<<ui->gvImage->width()<<m_imageItem->boundingRect().width()<< (ui->gvImage->width()-m_imageItem->boundingRect().width())/2;
-    m_imageItem->setPos((ui->gvImage->width()-m_imageItem->boundingRect().width())/2,
-                        (ui->gvImage->height()-m_imageItem->boundingRect().height())/2);
-
 }
 
 void VizualizatorWidget::processCapturedImage(int requestId, const QImage& img)
@@ -252,7 +258,7 @@ void VizualizatorWidget::processCapturedImage(int requestId, const QImage& img)
 //    item->setIcon(QPixmap::fromImage(m_currentImage->getThumbnail()));
     ui->lwGallery->insertItem(ui->lwGallery->count(),item);
     ui->lwGallery->setCurrentItem(item);
-    slotUpdateThumbnailItem();
+//    slotUpdateThumbnailItem();
 
 }
 
@@ -346,7 +352,7 @@ void VizualizatorWidget::toggleLock()
 void VizualizatorWidget::updateLockStatus(QCamera::LockStatus status, QCamera::LockChangeReason reason)
 {
     Q_UNUSED(reason)
-    if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__;
+    if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__<<status<<reason;
     QColor indicationColor = Qt::black;
 
     switch (status) {
@@ -358,7 +364,8 @@ void VizualizatorWidget::updateLockStatus(QCamera::LockStatus status, QCamera::L
     case QCamera::Locked:
         //        indicationColor = Qt::darkGreen;
         //        ui->lockButton->setText(tr("Unlock"));
-        //        ui->statusbar->showMessage(tr("Focused"), 2000);
+        //        ui->statusbar->showMessage(tr("Focused"), 2000)
+
         break;
     case QCamera::Unlocked:
         //        indicationColor = reason == QCamera::LockFailed ? Qt::red : Qt::black;
@@ -413,6 +420,7 @@ void VizualizatorWidget::updateCaptureMode()
 
     if (m_camera->isCaptureModeSupported(captureMode))
     {
+        if (m_localDebug) qDebug()<<"                       captureMode supported;";
         m_camera->setCaptureMode(captureMode);
     }
 }
@@ -509,7 +517,9 @@ void VizualizatorWidget::on_btnTakePicture_clicked()
 {
     if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__;
     m_isCapturingImage = true;
-    m_imageCapture->capture();
+qDebug()<<"m_camera exposure supported"<<m_camera->exposure()->aperture();
+m_imageCapture->capture();
+//    m_imageCapture->capture();
 }
 
 void VizualizatorWidget::slotReadyForCapture(bool ready)
@@ -555,6 +565,7 @@ void VizualizatorWidget::on_dialOrientation_valueChanged(int value)
     m_transformRotation.rotate(value);
     m_transformRotation.translate(-m_viewfinder->boundingRect().center().x(),-m_viewfinder->boundingRect().center().y());
 
+
     // Et on affiche soit la caméra, soit l'image
     if(ui->tabWidget->currentWidget() == ui->tabCamera1)
     {
@@ -562,8 +573,9 @@ void VizualizatorWidget::on_dialOrientation_valueChanged(int value)
     }
     else if(ui->tabWidget->currentWidget() == ui->tabGallery)
     {
+        m_currentImage->setAngleRotation(value);
         showResizedImage();
-        slotUpdateThumbnailItem();
+//        slotUpdateThumbnailItem();
     }
 }
 
@@ -612,9 +624,16 @@ void VizualizatorWidget::on_btnYaxisMirror_clicked(bool checked)
         m_transformYaxisMirror.rotate(180, Qt::YAxis);
         m_transformYaxisMirror.translate(-m_viewfinder->boundingRect().width(), 0);
     }
-    updateViewfinderTransformations();
-    showResizedImage();
-    slotUpdateThumbnailItem();
+    if(ui->tabWidget->currentWidget() == ui->tabCamera1)
+    {
+        updateViewfinderTransformations();
+    }
+    else if(ui->tabWidget->currentWidget() == ui->tabGallery)
+    {
+        m_currentImage->setFlipYaxis(checked);
+        showResizedImage();
+//        slotUpdateThumbnailItem();
+    }
 }
 
 void VizualizatorWidget::on_btnXaxisMirror_clicked(bool checked)
@@ -626,9 +645,17 @@ void VizualizatorWidget::on_btnXaxisMirror_clicked(bool checked)
         m_transformXaxisMirror.rotate(180, Qt::XAxis);
         m_transformXaxisMirror.translate(0, -m_viewfinder->boundingRect().height());
     }
-    updateViewfinderTransformations();
-    showResizedImage();
-    slotUpdateThumbnailItem();
+
+    if(ui->tabWidget->currentWidget() == ui->tabCamera1)
+    {
+        updateViewfinderTransformations();
+    }
+    else if(ui->tabWidget->currentWidget() == ui->tabGallery)
+    {
+        m_currentImage->setFlipXaxis(checked);
+        showResizedImage();
+//        slotUpdateThumbnailItem();
+    }
 }
 
 void VizualizatorWidget::updateViewfinderTransformations()
@@ -679,16 +706,15 @@ void VizualizatorWidget::on_btnFullScreenImage_clicked()
     if(ui->cbNativeImage->isChecked())
     {
         QSize size = QApplication::desktop()->availableGeometry().size();
-        scaledImage = m_currentImage->getOriginalImage().scaled(size, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+        scaledImage = m_currentImage->getOriginalImage()
+                .scaled(size, Qt::KeepAspectRatio, Qt::SmoothTransformation);
     }
     else
     {
         QSize size = QApplication::desktop()->availableGeometry().size();
         {
-            scaledImage = m_currentImage->getRotatedImage((360-ui->dialOrientation->value())%360,
-                                                          ui->btnXaxisMirror->isChecked(),
-                                                          ui->btnYaxisMirror->isChecked())
-                                                  .scaled(size,Qt::KeepAspectRatio,Qt::SmoothTransformation);
+            scaledImage = m_currentImage->getRotatedImage()
+                    .scaled(size,Qt::KeepAspectRatio,Qt::SmoothTransformation);
         }        
         showFullScreen(scaledImage);
     }
@@ -727,6 +753,8 @@ void VizualizatorWidget::on_tabWidget_currentChanged(int index)
         break;
     case 1: // tab Gallery
         ui->tbToolPanel->setCurrentWidget(ui->pageImagesSettings);
+
+        showResizedImage();
         break;
     default:
         // On ne fait rien
@@ -779,13 +807,10 @@ void VizualizatorWidget::slotUpdateThumbnailItem()
     QListWidgetItem *item = ui->lwGallery->currentItem();
     if(item)
     {
-        item->setData(Rotation, ui->dialOrientation->value());
-        item->setData(FlipXaxis, ui->btnXaxisMirror->isChecked());
-        item->setData(FlipYaxis, ui->btnYaxisMirror->isChecked());
-        item->setIcon(QPixmap::fromImage(m_currentImage->getThumbnail(ui->lwGallery->iconSize(),
-                                                                      ui->dialOrientation->value(),
-                                                                      ui->btnXaxisMirror->isChecked(),
-                                                                      ui->btnYaxisMirror->isChecked())));
+//        item->setData(Rotation, ui->dialOrientation->value());
+//        item->setData(FlipXaxis, ui->btnXaxisMirror->isChecked());
+//        item->setData(FlipYaxis, ui->btnYaxisMirror->isChecked());
+        item->setIcon(QPixmap::fromImage(m_currentImage->getThumbnail()));
     }
 }
 
@@ -795,3 +820,48 @@ void VizualizatorWidget::on_cBoxSelectCam_currentIndexChanged(int index)
     // On va récupérer le pointeur de la QAction et la déclencher
     updateCameraDevice(VariantPtr<QAction>::asPtr(ui->cBoxSelectCam->itemData(index, Qt::UserRole)));
 }
+
+void VizualizatorWidget::on_vSBrightness_valueChanged(int value)
+{
+    
+}
+QSize VizualizatorWidget::getIconSize() const
+{
+    return m_iconSize;
+}
+
+void VizualizatorWidget::setIconSize(const QSize &iconSize)
+{
+    m_iconSize = iconSize;
+}
+
+bool VizualizatorWidget::isFlipYaxis() const
+{
+    return m_flipYaxis;
+}
+
+void VizualizatorWidget::setFlipYaxis(bool flipYaxis)
+{
+    m_flipYaxis = flipYaxis;
+}
+
+bool VizualizatorWidget::isFlipXaxis() const
+{
+    return m_flipXaxis;
+}
+
+void VizualizatorWidget::setFlipXaxis(bool flipXaxis)
+{
+    m_flipXaxis = flipXaxis;
+}
+
+int VizualizatorWidget::rotation() const
+{
+    return m_rotation;
+}
+
+void VizualizatorWidget::setRotation(int rotation)
+{
+    m_rotation = rotation;
+}
+

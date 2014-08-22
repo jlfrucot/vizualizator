@@ -1,9 +1,12 @@
 #include "vizualizatorimage.h"
 
 VizualizatorImage::VizualizatorImage(const QImage &image) :
+    m_localDebug(false),
     m_image(image),
-    m_angle(0),
-    m_localDebug(false)
+    m_angleRotation(0),
+    m_flipXaxis(false),
+    m_flipYaxis(false),
+    m_iconSize(QSize(128,128))
 {
 
 }
@@ -13,19 +16,19 @@ VizualizatorImage::~VizualizatorImage()
 
 }
 
-QImage VizualizatorImage::getRotatedImage(int angle, bool xAxisMirror, bool yAxisMirror)
+QImage VizualizatorImage::getRotatedImage()
 {
     cv::Mat matOriginal(qImageToCvMat(m_image, true)); // Avec copie pour ne pas modifier l'image de base
     cv::Mat matRotated;
-    if(xAxisMirror)
+    if(m_flipXaxis)
     {
         cv::flip(matOriginal, matOriginal,0); // xAxis
     }
-    if(yAxisMirror)
+    if(m_flipYaxis)
     {
         cv::flip(matOriginal, matOriginal,1); // yAxis
     }
-    if(angle)
+    if(m_angleRotation)
     {
     /* On crée une matrice dont les dimensions sont celles d'un carré de côté la diagonale de l'image
      * Comme cela l'image tournée tiendra dedans sans cropping
@@ -45,7 +48,7 @@ QImage VizualizatorImage::getRotatedImage(int angle, bool xAxisMirror, bool yAxi
     cv::Mat targetMatROI = targetMat.rowRange(offsetY, offsetY + matOriginal.rows).colRange(offsetX, offsetX + matOriginal.cols);
     matOriginal.copyTo(targetMatROI);
     /* Calcul de la matrice de rotation */
-    cv::Mat rotateMat = cv::getRotationMatrix2D(imageCenter, angle, 1.0);
+    cv::Mat rotateMat = cv::getRotationMatrix2D(imageCenter, 360-m_angleRotation, 1.0);
     /* Rotation l'image tournée est dans matRotated */
     cv::warpAffine(targetMat, matRotated, rotateMat, targetMat.size());
 
@@ -104,11 +107,11 @@ QImage VizualizatorImage::getRotatedImage(int angle, bool xAxisMirror, bool yAxi
     else
     {
         QImage image(getOriginalImage());
-        if(xAxisMirror)
+        if(m_flipXaxis)
         {
             image = image.mirrored(false, true);
         }
-        if(yAxisMirror)
+        if(m_flipYaxis)
         {
             image = image.mirrored(true, false);
         }
@@ -116,26 +119,67 @@ QImage VizualizatorImage::getRotatedImage(int angle, bool xAxisMirror, bool yAxi
     }
 }
 
-QImage VizualizatorImage::getThumbnail(QSize size, int rotation, bool xAxisMirror, bool yAxisMirror )
+QImage VizualizatorImage::getThumbnail( )
 {
-    QImage thumbnail = m_image.scaled(size, Qt::KeepAspectRatio, Qt::SmoothTransformation);
-    if(xAxisMirror)
+    QImage thumbnail = m_image.scaled(m_iconSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    if(m_flipXaxis)
     {
         thumbnail = thumbnail.mirrored(false, true);
     }
-    if(yAxisMirror)
+    if(m_flipYaxis)
     {
         thumbnail = thumbnail.mirrored(true, false);
     }
-    if(rotation)
+    if(m_angleRotation)
     {
         QMatrix matrixRotate;
         matrixRotate.reset();
-        matrixRotate.rotate(rotation);
+        matrixRotate.rotate(m_angleRotation);
         thumbnail = thumbnail.transformed(matrixRotate);
     }
     return thumbnail;
 }
+int VizualizatorImage::getAngleRotation() const
+{
+    return m_angleRotation;
+}
+
+void VizualizatorImage::setAngleRotation(int angleRotation)
+{
+    m_angleRotation = angleRotation;
+}
+bool VizualizatorImage::isFlipXaxis() const
+{
+    return m_flipXaxis;
+}
+
+void VizualizatorImage::setFlipXaxis(bool flipXaxis)
+{
+    m_flipXaxis = flipXaxis;
+}
+bool VizualizatorImage::isFlipYaxis() const
+{
+    return m_flipYaxis;
+}
+
+void VizualizatorImage::setFlipYaxis(bool flipYaxis)
+{
+    m_flipYaxis = flipYaxis;
+}
+
+QSize VizualizatorImage::getIconSize() const
+{
+    return m_iconSize;
+}
+
+void VizualizatorImage::setIconSize(const QSize &iconSize)
+{
+    m_iconSize = iconSize;
+}
+
+
+
+
 
 /* Convertit une cv::Mat en QImage avec copie */
 QImage VizualizatorImage::cvMatToQimage(const cv::Mat &mat, QImage::Format format)
