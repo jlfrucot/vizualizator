@@ -18,23 +18,33 @@ public:
     inline QImage const getOriginalImage(){return m_image;}
     ///
     /// \brief Return la QImage tournée de n degrés
-    /// \param angle
     /// \return QImage tournée
     ///
     QImage getRotatedImage();
 
+
     QImage getThumbnail();
-    int getAngleRotation() const;
-    void setAngleRotation(int getAngleRotation);
 
-    bool isFlipXaxis() const;
-    void setFlipXaxis(bool flipXaxis);
+    int     getAngleRotation() const;
+    void    setAngleRotation(int angleRotation);
 
-    bool isFlipYaxis() const;
-    void setFlipYaxis(bool isFlipYaxis);
+    bool    isFlipXaxis() const;
+    void    setFlipXaxis(bool flipXaxis);
 
-    QSize getIconSize() const;
-    void  setIconSize(const QSize &iconSize);
+    bool    isFlipYaxis() const;
+    void    setFlipYaxis(bool flipYaxis);
+
+    QSize   getIconSize() const;
+    void    setIconSize(const QSize &iconSize);
+
+    QString getPathImage() const;
+    void    setPathImage(const QString &pathImage);
+
+    qreal getBrightnessValue() const;
+    void setBrightnessValue(const qreal &getBrightnessValue);
+
+    qreal getContrastValue() const;
+    void setContrastValue(const qreal &contrastValue);
 
 private:
     bool         m_localDebug;
@@ -43,8 +53,12 @@ private:
     bool         m_flipXaxis;
     bool         m_flipYaxis;
     QSize        m_iconSize;
-    QImage cvMatToQimage(const cv::Mat &mat, QImage::Format format);
+    QString      m_pathImage;
+    qreal        m_brightnessValue;
+    qreal        m_contrastValue;
+    QImage  cvMatToQimage(const cv::Mat &mat, QImage::Format format);
     cv::Mat qImageToCvMat(const QImage &inImage, bool inCloneImageData = true);
+    void updateContrastAndBrightness(const cv::Mat srcMat, cv::Mat desMat, qreal contrastValue, qreal brightnessValue);
 signals:
 
 public slots:

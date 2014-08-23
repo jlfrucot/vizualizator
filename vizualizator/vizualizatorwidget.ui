@@ -487,7 +487,7 @@ QRadioButton{
                  <string notr="true"/>
                 </property>
                 <property name="currentIndex">
-                 <number>0</number>
+                 <number>1</number>
                 </property>
                 <property name="tabSpacing">
                  <number>0</number>
@@ -497,8 +497,8 @@ QRadioButton{
                   <rect>
                    <x>0</x>
                    <y>0</y>
-                   <width>200</width>
-                   <height>324</height>
+                   <width>158</width>
+                   <height>110</height>
                   </rect>
                  </property>
                  <attribute name="label">
@@ -608,8 +608,8 @@ QRadioButton{
                   <rect>
                    <x>0</x>
                    <y>0</y>
-                   <width>155</width>
-                   <height>81</height>
+                   <width>200</width>
+                   <height>324</height>
                   </rect>
                  </property>
                  <attribute name="label">
@@ -634,6 +634,56 @@ QRadioButton{
                        <string>Plein écran</string>
                       </property>
                      </widget>
+                    </item>
+                    <item>
+                     <layout class="QGridLayout" name="gLContrastBrightness">
+                      <property name="topMargin">
+                       <number>0</number>
+                      </property>
+                      <item row="0" column="0">
+                       <widget class="QSlider" name="vSBrightness">
+                        <property name="minimum">
+                         <number>-255</number>
+                        </property>
+                        <property name="maximum">
+                         <number>255</number>
+                        </property>
+                        <property name="orientation">
+                         <enum>Qt::Vertical</enum>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="0" column="1">
+                       <widget class="QSlider" name="vSContrast">
+                        <property name="minimum">
+                         <number>0</number>
+                        </property>
+                        <property name="maximum">
+                         <number>2500</number>
+                        </property>
+                        <property name="value">
+                         <number>500</number>
+                        </property>
+                        <property name="orientation">
+                         <enum>Qt::Vertical</enum>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="1" column="0">
+                       <widget class="QLabel" name="label">
+                        <property name="text">
+                         <string>Luminosité</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="1" column="1">
+                       <widget class="QLabel" name="label_2">
+                        <property name="text">
+                         <string>Contraste</string>
+                        </property>
+                       </widget>
+                      </item>
+                     </layout>
                     </item>
                     <item>
                      <spacer name="verticalSpacer">

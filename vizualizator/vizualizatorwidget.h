@@ -70,17 +70,17 @@ public:
     QByteArray vizualizatorGetCameras();
     void restoreUiFromItem(QListWidgetItem *item);
     void showFullScreen(QImage scaledImage);
-    int rotation() const;
-    void setRotation(int rotation);
+//    int rotation() const;
+//    void setRotation(int rotation);
 
-    bool isFlipXaxis() const;
-    void setFlipXaxis(bool flipXaxis);
+//    bool isFlipXaxis() const;
+//    void setFlipXaxis(bool flipXaxis);
 
-    bool isFlipYaxis() const;
-    void setFlipYaxis(bool flipYaxis);
+//    bool isFlipYaxis() const;
+//    void setFlipYaxis(bool flipYaxis);
 
-    QSize getIconSize() const;
-    void setIconSize(const QSize &iconSize);
+//    QSize getIconSize() const;
+//    void setIconSize(const QSize &iconSize);
 
 private slots:
 
@@ -141,6 +141,8 @@ private slots:
 
     void on_vSBrightness_valueChanged(int value);
     
+    void on_vSContrast_valueChanged(int value);
+
 private:
     bool m_localDebug;
     Ui::VizualizatorWidget *ui;

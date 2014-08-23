@@ -6,9 +6,11 @@ VizualizatorImage::VizualizatorImage(const QImage &image) :
     m_angleRotation(0),
     m_flipXaxis(false),
     m_flipYaxis(false),
-    m_iconSize(QSize(128,128))
+    m_iconSize(QSize(128,128)),
+    m_pathImage(QString()),
+    m_brightnessValue(0.0),
+    m_contrastValue(1.0)
 {
-
 }
 
 VizualizatorImage::~VizualizatorImage()
@@ -27,6 +29,10 @@ QImage VizualizatorImage::getRotatedImage()
     if(m_flipYaxis)
     {
         cv::flip(matOriginal, matOriginal,1); // yAxis
+    }
+    if(m_brightnessValue || m_contrastValue != 1)
+    {
+        updateContrastAndBrightness(matOriginal, matOriginal, m_contrastValue, m_brightnessValue);
     }
     if(m_angleRotation)
     {
@@ -101,22 +107,9 @@ QImage VizualizatorImage::getRotatedImage()
     cv::Mat croppedResult;
     cv::Mat ROI = matRotated(bound_Rect);
     ROI.copyTo(croppedResult);
-
-    return cvMatToQimage(croppedResult, m_image.format());
+    matOriginal = croppedResult;
     }
-    else
-    {
-        QImage image(getOriginalImage());
-        if(m_flipXaxis)
-        {
-            image = image.mirrored(false, true);
-        }
-        if(m_flipYaxis)
-        {
-            image = image.mirrored(true, false);
-        }
-        return image;
-    }
+    return cvMatToQimage(matOriginal, m_image.format());
 }
 
 QImage VizualizatorImage::getThumbnail( )
@@ -176,6 +169,36 @@ void VizualizatorImage::setIconSize(const QSize &iconSize)
 {
     m_iconSize = iconSize;
 }
+QString VizualizatorImage::getPathImage() const
+{
+    return m_pathImage;
+}
+
+void VizualizatorImage::setPathImage(const QString &pathImage)
+{
+    m_pathImage = pathImage;
+}
+qreal VizualizatorImage::getBrightnessValue() const
+{
+    return m_brightnessValue;
+}
+
+void VizualizatorImage::setBrightnessValue(const qreal &brightnessValue)
+{
+    m_brightnessValue = brightnessValue;
+}
+qreal VizualizatorImage::getContrastValue() const
+{
+    return m_contrastValue;
+}
+
+void VizualizatorImage::setContrastValue(const qreal &contrastValue)
+{
+    m_contrastValue = contrastValue;
+}
+
+
+
 
 
 
@@ -221,4 +244,10 @@ cv::Mat VizualizatorImage::qImageToCvMat( const QImage &inImage, bool inCloneIma
     }
 
     return cv::Mat();
+}
+
+void VizualizatorImage::updateContrastAndBrightness(const cv::Mat srcMat, cv::Mat desMat,qreal contrastValue, qreal brightnessValue)
+{
+    qDebug()<<"updateBrightness()";
+    srcMat.convertTo(desMat, -1, contrastValue, brightnessValue);
 }

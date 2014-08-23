@@ -45,6 +45,8 @@ VizualizatorWidget::VizualizatorWidget(QWidget *parent) :
     ui->setupUi(this);
     ui->tbToolPanel->setCurrentWidget(ui->pageCamera);
     ui->tabWidget->setCurrentWidget(ui->tabCamera1);
+    ui->gLContrastBrightness->setAlignment(ui->vSBrightness, Qt::AlignHCenter);
+    ui->gLContrastBrightness->setAlignment(ui->vSContrast, Qt::AlignHCenter);
     m_fullscreenLabels.clear();
 
     m_scene = new QGraphicsScene();
@@ -251,7 +253,7 @@ void VizualizatorWidget::processCapturedImage(int requestId, const QImage& img)
     item->setData(ImagePointer,VariantPtr<VizualizatorImage>::asQVariant(m_currentImage));
     qDebug()<<"------------------------------------------"<<VariantPtr<VizualizatorImage>::asQVariant(m_currentImage);
      /*Ce sera pour garder le chemin du fichier*/
-    item->setData(FilePath,"");
+//    item->setData(FilePath,"");
 //    item->setData(Rotation, ui->dialOrientation->value());
 //    item->setData(FlipXaxis, ui->btnXaxisMirror->isChecked());
 //    item->setData(FlipYaxis, ui->btnYaxisMirror->isChecked());
@@ -823,45 +825,53 @@ void VizualizatorWidget::on_cBoxSelectCam_currentIndexChanged(int index)
 
 void VizualizatorWidget::on_vSBrightness_valueChanged(int value)
 {
-    
+    m_currentImage->setBrightnessValue(value);
+            showResizedImage();
 }
-QSize VizualizatorWidget::getIconSize() const
-{
-    return m_iconSize;
-}
+//QSize VizualizatorWidget::getIconSize() const
+//{
+//    return m_iconSize;
+//}
 
-void VizualizatorWidget::setIconSize(const QSize &iconSize)
-{
-    m_iconSize = iconSize;
-}
+//void VizualizatorWidget::setIconSize(const QSize &iconSize)
+//{
+//    m_iconSize = iconSize;
+//}
 
-bool VizualizatorWidget::isFlipYaxis() const
-{
-    return m_flipYaxis;
-}
+//bool VizualizatorWidget::isFlipYaxis() const
+//{
+//    return m_flipYaxis;
+//}
 
-void VizualizatorWidget::setFlipYaxis(bool flipYaxis)
-{
-    m_flipYaxis = flipYaxis;
-}
+//void VizualizatorWidget::setFlipYaxis(bool flipYaxis)
+//{
+//    m_flipYaxis = flipYaxis;
+//}
 
-bool VizualizatorWidget::isFlipXaxis() const
-{
-    return m_flipXaxis;
-}
+//bool VizualizatorWidget::isFlipXaxis() const
+//{
+//    return m_flipXaxis;
+//}
 
-void VizualizatorWidget::setFlipXaxis(bool flipXaxis)
-{
-    m_flipXaxis = flipXaxis;
-}
+//void VizualizatorWidget::setFlipXaxis(bool flipXaxis)
+//{
+//    m_flipXaxis = flipXaxis;
+//}
 
-int VizualizatorWidget::rotation() const
-{
-    return m_rotation;
-}
+//int VizualizatorWidget::rotation() const
+//{
+//    return m_rotation;
+//}
 
-void VizualizatorWidget::setRotation(int rotation)
-{
-    m_rotation = rotation;
-}
+//void VizualizatorWidget::setRotation(int rotation)
+//{
+//    m_rotation = rotation;
+//}
 
+
+void VizualizatorWidget::on_vSContrast_valueChanged(int value)
+{
+    m_currentImage->setContrastValue((qreal)value/500);
+    qDebug()<<"contrastValue"<<(qreal)value/500;
+            showResizedImage();
+}
