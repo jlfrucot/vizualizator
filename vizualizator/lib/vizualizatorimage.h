@@ -2,6 +2,8 @@
 #define VIZUALIZATORIMAGE_H
 
 #include <QImage>
+#include <QSettings>
+#include <QMetaProperty>
 #include <QDebug>
 #include <QMatrix>
 #ifdef WITH_OPENCV2
@@ -19,7 +21,7 @@ class VizualizatorImage : public QObject
     Q_PROPERTY(int AngleRotation    MEMBER m_angleRotation  READ getAngleRotation   WRITE setAngleRotation)
     Q_PROPERTY(bool FlipXaxis       MEMBER m_flipXaxis      READ isFlipXaxis        WRITE setFlipXaxis)
     Q_PROPERTY(bool FlipYaxis       MEMBER m_flipYaxis      READ isFlipYaxis        WRITE setFlipYaxis)
-    Q_PROPERTY(QSize getIconeSize   MEMBER m_iconSize       READ getIconeSize       WRITE setIconeSize)
+    Q_PROPERTY(QSize IconSize   MEMBER m_iconSize          READ getIconSize       WRITE setIconSize)
     Q_PROPERTY(QString PathImage    MEMBER m_pathImage      READ getPathImage       WRITE setPathImage)
     Q_PROPERTY(qreal BrightnessValue MEMBER m_brightnessValue READ getBrightnessValue WRITE setBrightnessValue)
     Q_PROPERTY(qreal ContrastValue  MEMBER m_contrastValue  READ getContrastValue WRITE setContrastValue)
@@ -58,6 +60,13 @@ public:
     qreal getContrastValue() const;
     void setContrastValue(const qreal &contrastValue);
 
+    /// Exporte les propriétés dans le QSetting passé en paramètre
+    /// @param config Le setting dans lequel écrire
+    void exportToFile(QSettings *config);
+
+    /// Importe les paramètres depuis le Qsetting passé en paramètre
+    /// @param config Le setting depuis lequel lire les paramètres
+    void importFromFile(QSettings *config);
 private:
     bool         m_localDebug;
     const QImage m_image;
