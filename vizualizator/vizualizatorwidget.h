@@ -86,7 +86,7 @@ public:
     QWidget *VizualizatorWidgetGetToolBox();
 
 
-    void restoreUiFromItem(QListWidgetItem *item);
+    void restoreUiFromCurrentImage();
     void showFullScreen(QImage scaledImage);
 
 private slots:

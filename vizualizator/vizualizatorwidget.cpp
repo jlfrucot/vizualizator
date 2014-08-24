@@ -238,8 +238,6 @@ void VizualizatorWidget::processCapturedImage(int requestId, const QImage& img)
 //        delete m_image;
 //    }
     m_currentImage = new VizualizatorImage(img);
-    /* Pour laisser le temps au widget de prendre sa taille ??? */
-    QTimer::singleShot(100,this,SLOT(showResizedImage()));
 
     /* On crée et affiche un thumbnail */
     QListWidgetItem *item = new QListWidgetItem();
@@ -247,6 +245,8 @@ void VizualizatorWidget::processCapturedImage(int requestId, const QImage& img)
     item->setData(ImagePointer,VariantPtr<VizualizatorImage>::asQVariant(m_currentImage));
     ui->lwGallery->insertItem(ui->lwGallery->count(),item);
     ui->lwGallery->setCurrentItem(item);
+    /* Pour laisser le temps au widget de prendre sa taille ??? */
+    QTimer::singleShot(100,this,SLOT(showResizedImage()));
 }
 
 void VizualizatorWidget::configureCaptureSettings()
@@ -707,8 +707,6 @@ void VizualizatorWidget::on_tabWidget_currentChanged(int index)
         break;
     case 1: // tab Gallery
         ui->tbToolPanel->setCurrentWidget(ui->pageImagesSettings);
-
-        showResizedImage();
         break;
     default:
         // On ne fait rien
@@ -736,13 +734,28 @@ void VizualizatorWidget::on_tbToolPanel_currentChanged(int index)
     }
 }
 
-void VizualizatorWidget::restoreUiFromItem(QListWidgetItem *item)
+void VizualizatorWidget::restoreUiFromCurrentImage()
 {
     if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__;
-    ui->dialOrientation->setValue(item->data(Rotation).toInt());
-    ui->btnXaxisMirror ->setChecked(item->data(FlipXaxis).toBool());
-    ui->btnYaxisMirror ->setChecked(item->data(FlipYaxis).toBool());
-    ui->cbNativeImage  ->setChecked(false);     // Pourquoi pas ?
+    /* On évite les redraw multiples en bloquant les signaux */
+    ui->dialOrientation ->blockSignals(true);
+    ui->dialOrientation ->setValue(m_currentImage->getAngleRotation());
+    ui->dialOrientation ->blockSignals(false);
+    ui->btnXaxisMirror  ->blockSignals(true);
+    ui->btnXaxisMirror  ->setChecked(m_currentImage->isFlipXaxis());
+    ui->btnXaxisMirror  ->blockSignals(false);
+    ui->btnYaxisMirror  ->blockSignals(true);
+    ui->btnYaxisMirror  ->setChecked(m_currentImage->isFlipYaxis());
+    ui->btnYaxisMirror  ->blockSignals(false);
+    ui->vSBrightness    ->blockSignals(true);
+    ui->vSBrightness    ->setValue((int)m_currentImage->getBrightnessValue());
+    ui->vSBrightness    ->blockSignals(false);
+    ui->vSContrast      ->blockSignals(true);
+    ui->vSContrast      ->setValue((int)m_currentImage->getContrastValue()*500);
+    ui->vSContrast      ->blockSignals(false);
+    ui->cbNativeImage   ->blockSignals(true);
+    ui->cbNativeImage   ->setChecked(false);     // Pourquoi pas ?
+    ui->cbNativeImage   ->blockSignals(false);
 }
 
 void VizualizatorWidget::on_lwGallery_itemClicked(QListWidgetItem *item)
@@ -750,7 +763,7 @@ void VizualizatorWidget::on_lwGallery_itemClicked(QListWidgetItem *item)
     if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__;
     /* On va réafficher l'image correspondant à l'item sélectionné */
     m_currentImage = VariantPtr<VizualizatorImage>::asPtr(item->data(ImagePointer));
-    restoreUiFromItem(item);
+    restoreUiFromCurrentImage();
     showResizedImage();
 }
 
