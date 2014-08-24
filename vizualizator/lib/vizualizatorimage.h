@@ -9,8 +9,20 @@
   #include <opencv2/imgproc/imgproc.hpp>
   #include <opencv2/core/core.hpp>
 #endif
-class VizualizatorImage
+
+///
+/// \brief LA classe VizualizatorImage décrit une image avec toutes ses propriétés
+///
+class VizualizatorImage : public QObject
 {
+    Q_OBJECT
+    Q_PROPERTY(int AngleRotation    MEMBER m_angleRotation  READ getAngleRotation   WRITE setAngleRotation)
+    Q_PROPERTY(bool FlipXaxis       MEMBER m_flipXaxis      READ isFlipXaxis        WRITE setFlipXaxis)
+    Q_PROPERTY(bool FlipYaxis       MEMBER m_flipYaxis      READ isFlipYaxis        WRITE setFlipYaxis)
+    Q_PROPERTY(QSize getIconeSize   MEMBER m_iconSize       READ getIconeSize       WRITE setIconeSize)
+    Q_PROPERTY(QString PathImage    MEMBER m_pathImage      READ getPathImage       WRITE setPathImage)
+    Q_PROPERTY(qreal BrightnessValue MEMBER m_brightnessValue READ getBrightnessValue WRITE setBrightnessValue)
+    Q_PROPERTY(qreal ContrastValue  MEMBER m_contrastValue  READ getContrastValue WRITE setContrastValue)
 public:
     explicit VizualizatorImage(const QImage &image);
     ~VizualizatorImage();

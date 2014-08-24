@@ -197,6 +197,31 @@ void VizualizatorImage::setContrastValue(const qreal &contrastValue)
     m_contrastValue = contrastValue;
 }
 
+void VizualizatorImage::exportToFile(QSettings *config)
+{
+    static const QMetaObject* meta = metaObject();
+    for(int i = 0; i < meta->propertyCount(); ++i)
+    {
+        const char* name = meta->property(i).name();
+        if(QString(name) != "objectName")
+        {
+            config->setValue(name, property(name));
+        }
+    }
+}
+
+void VizualizatorImage::importFromFile(QSettings *config)
+{
+    foreach(QString key, config->allKeys())
+    {
+        if(m_localDebug)
+        {
+            qDebug() << key << " : " << config->value(key);
+        }
+        setProperty(key.toLocal8Bit(),config->value(key));
+    }
+}
+
 
 
 
