@@ -38,14 +38,31 @@ class VizualizatorWidget : public QWidget
     Q_OBJECT
 
     Q_ENUMS(ThumbnailRole)
-//    Q_FLAGS(Flip Flips)
-public:
 
-    enum ThumbnailRole{ImagePointer = Qt::UserRole+1, FilePath = Qt::UserRole+2, Rotation = Qt::UserRole+3, FlipXaxis = Qt::UserRole+4, FlipYaxis = Qt::UserRole+5};
-//    enum Flip{FlipHorizontal = 1, FlipVertical = 2};
-//    Q_DECLARE_FLAGS(Flips, Flip)
+public:
+    ///
+    /// \brief ThumbnailRole enum pour stocker les modifications appliquées à l'image à l'aide de setData
+    ///
+    enum ThumbnailRole{ImagePointer = Qt::UserRole+1,
+                       FilePath     = Qt::UserRole+2,
+                       Rotation     = Qt::UserRole+3,
+                       FlipXaxis    = Qt::UserRole+4,
+                       FlipYaxis    = Qt::UserRole+5};
+
+    ///
+    /// \brief VizualizatorWidget constructeur permettant la promotion dans le designer
+    /// \param parent
+    ///
     explicit VizualizatorWidget(QWidget *parent = 0);
+
     ~VizualizatorWidget();
+
+    ///
+    /// \brief Crée la liste des caméras
+    /// \return La caméra par défaut
+    ///
+    QByteArray vizualizatorGetCameras();
+
     ///
     /// \brief Fournit un pointeur vers un QActionGroup présentant la liste des caméras connectées
     ///
@@ -67,20 +84,10 @@ public:
     /// \return Pointeur vers QToolBox
     ///
     QWidget *VizualizatorWidgetGetToolBox();
-    QByteArray vizualizatorGetCameras();
+
+
     void restoreUiFromItem(QListWidgetItem *item);
     void showFullScreen(QImage scaledImage);
-//    int rotation() const;
-//    void setRotation(int rotation);
-
-//    bool isFlipXaxis() const;
-//    void setFlipXaxis(bool flipXaxis);
-
-//    bool isFlipYaxis() const;
-//    void setFlipYaxis(bool flipYaxis);
-
-//    QSize getIconSize() const;
-//    void setIconSize(const QSize &iconSize);
 
 private slots:
 
@@ -118,7 +125,9 @@ private slots:
     void on_btnYaxisMirror_clicked(bool checked);
     void on_btnXaxisMirror_clicked(bool checked);
 
-    /// Met à jour les transformations appliquées au viewfinder
+    ///
+    /// \brief Met à jour les transformations appliquées au viewfinder
+    ///
     void updateViewfinderTransformations();
 
 

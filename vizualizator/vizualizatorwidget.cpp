@@ -41,6 +41,7 @@ VizualizatorWidget::VizualizatorWidget(QWidget *parent) :
     m_applicationExiting(false)
 {
     m_localDebug = true;
+    if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__<<"Constructor";
     setAttribute(Qt::WA_DeleteOnClose);
     ui->setupUi(this);
     ui->tbToolPanel->setCurrentWidget(ui->pageCamera);
@@ -78,6 +79,7 @@ VizualizatorWidget::VizualizatorWidget(QWidget *parent) :
 
 VizualizatorWidget::~VizualizatorWidget()
 {
+    if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__<<"Destructeur";
     if(m_currentImage)
     {
         delete m_currentImage;
@@ -87,17 +89,12 @@ VizualizatorWidget::~VizualizatorWidget()
         m_camera->stop();
         delete m_camera;
     }
-//    foreach (QLabel *label, m_fullscreenLabels)
-//    {
-//        qDebug()<<"//////////////////////////////// LAbels Destructor";
-//        label->close();
-//        label->deleteLater();
-//    }
     delete ui;
 }
 
 QByteArray VizualizatorWidget::vizualizatorGetCameras()
 {
+    if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__;
     QByteArray cameraDevice;
     m_videoDevicesGroup = new QActionGroup(this);
     m_videoDevicesGroup->setExclusive(true);
@@ -114,7 +111,6 @@ QByteArray VizualizatorWidget::vizualizatorGetCameras()
             cameraDevice = deviceName;
             videoDeviceAction->setChecked(true);
         }
-
         // On va remplir la combobox de sélection de camera avec la description et le pointeur vers la QAction
         ui->cBoxSelectCam->insertItem(ui->cBoxSelectCam->count(),description, VariantPtr<QAction>::asQVariant(videoDeviceAction));
     }
@@ -123,13 +119,16 @@ QByteArray VizualizatorWidget::vizualizatorGetCameras()
 
     return cameraDevice; // La camera par défaut
 }
+
 QWidget *VizualizatorWidget::VizualizatorWidgetGetToolBox()
 {
+    if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__;
     return ui->widgetToolPanel;
 }
 
 void VizualizatorWidget::setCamera(const QByteArray &cameraDevice)
 {
+    if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__;
     /* On détruit les éventuels objects devenus obsoletes */
     m_imageCapture->deleteLater();
     m_mediaRecorder->deleteLater();
@@ -173,7 +172,7 @@ void VizualizatorWidget::setCamera(const QByteArray &cameraDevice)
     connect(m_camera, SIGNAL(lockStatusChanged(QCamera::LockStatus, QCamera::LockChangeReason)),
             this, SLOT(updateLockStatus(QCamera::LockStatus, QCamera::LockChangeReason)));
 
-    m_camera->searchAndLock();
+//    m_camera->searchAndLock();
     updateCameraState(m_camera->state());
     updateLockStatus(m_camera->lockStatus(), QCamera::UserRequest);
     updateRecorderState(m_mediaRecorder->state());
@@ -197,11 +196,7 @@ void VizualizatorWidget::updateRecordTime()
 void VizualizatorWidget::showResizedImage()
 {
     if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__;
-    if(!m_currentImage)
-    {
-        return;
-    }
-    else
+    if(m_currentImage)
     {
         m_currentImage->setAngleRotation(ui->dialOrientation->value());
         m_currentImage->setFlipXaxis(ui->btnXaxisMirror->isChecked());
@@ -214,11 +209,10 @@ void VizualizatorWidget::showResizedImage()
         }
         else
         {
-            QImage scaledImage = m_currentImage->getRotatedImage()
+            QImage scaledImage = m_currentImage->getModifiedImage()
                     .scaled(ui->gvImage->size(),Qt::KeepAspectRatio,Qt::SmoothTransformation);
             m_imageItem->setPixmap(QPixmap::fromImage(scaledImage));
         }
-        //    qDebug()<<__LINE__<<ui->gvImage->width()<<m_imageItem->boundingRect().width()<< (ui->gvImage->width()-m_imageItem->boundingRect().width())/2;
         m_imageItem->setPos((ui->gvImage->width()-m_imageItem->boundingRect().width())/2,
                             (ui->gvImage->height()-m_imageItem->boundingRect().height())/2);
         slotUpdateThumbnailItem();
@@ -251,17 +245,8 @@ void VizualizatorWidget::processCapturedImage(int requestId, const QImage& img)
     QListWidgetItem *item = new QListWidgetItem();
     /* On garde le pointeur de m_image avec l'item */
     item->setData(ImagePointer,VariantPtr<VizualizatorImage>::asQVariant(m_currentImage));
-    qDebug()<<"------------------------------------------"<<VariantPtr<VizualizatorImage>::asQVariant(m_currentImage);
-     /*Ce sera pour garder le chemin du fichier*/
-//    item->setData(FilePath,"");
-//    item->setData(Rotation, ui->dialOrientation->value());
-//    item->setData(FlipXaxis, ui->btnXaxisMirror->isChecked());
-//    item->setData(FlipYaxis, ui->btnYaxisMirror->isChecked());
-//    item->setIcon(QPixmap::fromImage(m_currentImage->getThumbnail()));
     ui->lwGallery->insertItem(ui->lwGallery->count(),item);
     ui->lwGallery->setCurrentItem(item);
-//    slotUpdateThumbnailItem();
-
 }
 
 void VizualizatorWidget::configureCaptureSettings()
@@ -355,40 +340,19 @@ void VizualizatorWidget::updateLockStatus(QCamera::LockStatus status, QCamera::L
 {
     Q_UNUSED(reason)
     if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__<<status<<reason;
-    QColor indicationColor = Qt::black;
-
-    switch (status) {
+    switch (status)
+    {
     case QCamera::Searching:
-        //        indicationColor = Qt::yellow;
-        //        ui->statusbar->showMessage(tr("Focusing..."));
-        //        ui->lockButton->setText(tr("Focusing..."));
+        if (m_localDebug) qDebug()<<"          Searching";
         break;
     case QCamera::Locked:
-        //        indicationColor = Qt::darkGreen;
-        //        ui->lockButton->setText(tr("Unlock"));
-        //        ui->statusbar->showMessage(tr("Focused"), 2000)
-
+        if (m_localDebug) qDebug()<<"          Locked";
         break;
     case QCamera::Unlocked:
-        //        indicationColor = reason == QCamera::LockFailed ? Qt::red : Qt::black;
-        //        ui->lockButton->setText(tr("Focus"));
-        //        if (reason == QCamera::LockFailed)
-        //            ui->statusbar->showMessage(tr("Focus Failed"), 2000);
-        //    }
-
-        //    QPalette palette = ui->lockButton->palette();
-        //    palette.setColor(QPalette::ButtonText, indicationColor);
-        //    ui->lockButton->setPalette(palette);
+        if (m_localDebug) qDebug()<<"          Unlocked";
         break;
     }
 }
-
-//void VizualizatorWidget::takeImage()
-//{
-//    if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__;
-//    m_isCapturingImage = true;
-//    m_imageCapture->capture();
-//}
 
 void VizualizatorWidget::displayCaptureError(int id, const QCameraImageCapture::Error error, const QString &errorString)
 {
@@ -414,8 +378,6 @@ void VizualizatorWidget::stopCamera()
 void VizualizatorWidget::updateCaptureMode()
 {
     if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__;
-    //    int tabIndex = ui->captureWidget->currentIndex();
-    //    QCamera::CaptureModes captureMode = tabIndex == 0 ? QCamera::CaptureStillImage : QCamera::CaptureVideo;
 
     /* Pour l'instant on ne prend que des images */
     QCamera::CaptureModes captureMode = QCamera::CaptureStillImage;
@@ -479,11 +441,6 @@ void VizualizatorWidget::displayCameraError()
     if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__;
     QMessageBox::warning(this, tr("Camera error"), m_camera->errorString());
 }
-//void VizualizatorWidget::readyForCapture(bool ready)
-//{
-//    //    if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__;
-//    //    ui->btnTakePicture->setEnabled(ready);
-//}
 
 void VizualizatorWidget::imageSaved(int id, const QString &fileName)
 {
@@ -519,9 +476,7 @@ void VizualizatorWidget::on_btnTakePicture_clicked()
 {
     if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__;
     m_isCapturingImage = true;
-qDebug()<<"m_camera exposure supported"<<m_camera->exposure()->aperture();
-m_imageCapture->capture();
-//    m_imageCapture->capture();
+    m_imageCapture->capture();
 }
 
 void VizualizatorWidget::slotReadyForCapture(bool ready)
@@ -577,7 +532,6 @@ void VizualizatorWidget::on_dialOrientation_valueChanged(int value)
     {
         m_currentImage->setAngleRotation(value);
         showResizedImage();
-//        slotUpdateThumbnailItem();
     }
 }
 
@@ -634,7 +588,6 @@ void VizualizatorWidget::on_btnYaxisMirror_clicked(bool checked)
     {
         m_currentImage->setFlipYaxis(checked);
         showResizedImage();
-//        slotUpdateThumbnailItem();
     }
 }
 
@@ -656,7 +609,6 @@ void VizualizatorWidget::on_btnXaxisMirror_clicked(bool checked)
     {
         m_currentImage->setFlipXaxis(checked);
         showResizedImage();
-//        slotUpdateThumbnailItem();
     }
 }
 
@@ -677,9 +629,7 @@ void VizualizatorWidget::resizeEvent(QResizeEvent *)
     ui->gvImage->setSceneRect(0,0, ui->gvImage->width(), ui->gvImage->height());
     if(m_imageItem)
     {
-//        ui->gvImage->fitInView(m_imageItem, Qt::KeepAspectRatio);
         showResizedImage();
-    //    m_viewfinder->setSize(ui->gvCameraView->size());
     }
 }
 
@@ -692,18 +642,19 @@ void VizualizatorWidget::showEvent(QShowEvent *)
     if(m_imageItem)
     {
         showResizedImage();
-//        ui->gvImage->fitInView(m_imageItem, Qt::KeepAspectRatio);
     }
 }
 
 void VizualizatorWidget::on_cbNativeImage_clicked(bool checked)
 {
+    Q_UNUSED(checked)
     if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__;
     showResizedImage();
 }
 
 void VizualizatorWidget::on_btnFullScreenImage_clicked()
 {
+    if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__;
     QImage scaledImage;
     if(ui->cbNativeImage->isChecked())
     {
@@ -715,7 +666,7 @@ void VizualizatorWidget::on_btnFullScreenImage_clicked()
     {
         QSize size = QApplication::desktop()->availableGeometry().size();
         {
-            scaledImage = m_currentImage->getRotatedImage()
+            scaledImage = m_currentImage->getModifiedImage()
                     .scaled(size,Qt::KeepAspectRatio,Qt::SmoothTransformation);
         }        
         showFullScreen(scaledImage);
@@ -724,6 +675,7 @@ void VizualizatorWidget::on_btnFullScreenImage_clicked()
 
 void VizualizatorWidget::showFullScreen(QImage scaledImage)
 {
+    if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__;
     QLabel *label = new QLabel();
     label->setAlignment(Qt::AlignCenter);
     label->setPixmap(QPixmap::fromImage(scaledImage));
@@ -797,7 +749,6 @@ void VizualizatorWidget::on_lwGallery_itemClicked(QListWidgetItem *item)
 {
     if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__;
     /* On va réafficher l'image correspondant à l'item sélectionné */
-//    qDebug()<<"------------------------------------------"<<VariantPtr<VizualizatorImage>::asPtr(item->data(ImagePointer));
     m_currentImage = VariantPtr<VizualizatorImage>::asPtr(item->data(ImagePointer));
     restoreUiFromItem(item);
     showResizedImage();
@@ -809,9 +760,6 @@ void VizualizatorWidget::slotUpdateThumbnailItem()
     QListWidgetItem *item = ui->lwGallery->currentItem();
     if(item)
     {
-//        item->setData(Rotation, ui->dialOrientation->value());
-//        item->setData(FlipXaxis, ui->btnXaxisMirror->isChecked());
-//        item->setData(FlipYaxis, ui->btnYaxisMirror->isChecked());
         item->setIcon(QPixmap::fromImage(m_currentImage->getThumbnail()));
     }
 }
@@ -819,59 +767,22 @@ void VizualizatorWidget::slotUpdateThumbnailItem()
 
 void VizualizatorWidget::on_cBoxSelectCam_currentIndexChanged(int index)
 {
+    if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__;
     // On va récupérer le pointeur de la QAction et la déclencher
     updateCameraDevice(VariantPtr<QAction>::asPtr(ui->cBoxSelectCam->itemData(index, Qt::UserRole)));
 }
 
 void VizualizatorWidget::on_vSBrightness_valueChanged(int value)
 {
+    if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__;
     m_currentImage->setBrightnessValue(value);
             showResizedImage();
 }
-//QSize VizualizatorWidget::getIconSize() const
-//{
-//    return m_iconSize;
-//}
-
-//void VizualizatorWidget::setIconSize(const QSize &iconSize)
-//{
-//    m_iconSize = iconSize;
-//}
-
-//bool VizualizatorWidget::isFlipYaxis() const
-//{
-//    return m_flipYaxis;
-//}
-
-//void VizualizatorWidget::setFlipYaxis(bool flipYaxis)
-//{
-//    m_flipYaxis = flipYaxis;
-//}
-
-//bool VizualizatorWidget::isFlipXaxis() const
-//{
-//    return m_flipXaxis;
-//}
-
-//void VizualizatorWidget::setFlipXaxis(bool flipXaxis)
-//{
-//    m_flipXaxis = flipXaxis;
-//}
-
-//int VizualizatorWidget::rotation() const
-//{
-//    return m_rotation;
-//}
-
-//void VizualizatorWidget::setRotation(int rotation)
-//{
-//    m_rotation = rotation;
-//}
-
 
 void VizualizatorWidget::on_vSContrast_valueChanged(int value)
 {
+    if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__;
+    /* Le contraste variera entre 0 et 5 */
     m_currentImage->setContrastValue((qreal)value/500);
-    qDebug()<<"contrastValue"<<(qreal)value/500;
-            showResizedImage();
+    showResizedImage();
 }

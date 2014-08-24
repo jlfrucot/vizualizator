@@ -18,10 +18,13 @@ VizualizatorImage::~VizualizatorImage()
 
 }
 
-QImage VizualizatorImage::getRotatedImage()
+QImage VizualizatorImage::getModifiedImage()
 {
+    if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__;
     cv::Mat matOriginal(qImageToCvMat(m_image, true)); // Avec copie pour ne pas modifier l'image de base
     cv::Mat matRotated;
+
+    /* On applique les flip et les modifications de luminosité et contraste si nécessaire */
     if(m_flipXaxis)
     {
         cv::flip(matOriginal, matOriginal,0); // xAxis
@@ -34,6 +37,10 @@ QImage VizualizatorImage::getRotatedImage()
     {
         updateContrastAndBrightness(matOriginal, matOriginal, m_contrastValue, m_brightnessValue);
     }
+
+    /* On applique la rotation demandée si différent de zéro
+     * De plus l'image sera reclaculée de façon a ne "sortir" du cadre
+     */
     if(m_angleRotation)
     {
     /* On crée une matrice dont les dimensions sont celles d'un carré de côté la diagonale de l'image
@@ -109,11 +116,16 @@ QImage VizualizatorImage::getRotatedImage()
     ROI.copyTo(croppedResult);
     matOriginal = croppedResult;
     }
+    /* Et hop ! On retourne l'image modifiée */
     return cvMatToQimage(matOriginal, m_image.format());
 }
 
 QImage VizualizatorImage::getThumbnail( )
 {
+    if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__;
+    /* Pour le thumbnail, on va utiliser le calcul des transformation de Qt
+     * Sans appliquer les modification de contraste et de luminosité
+     */
     QImage thumbnail = m_image.scaled(m_iconSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
     if(m_flipXaxis)
     {
@@ -132,73 +144,90 @@ QImage VizualizatorImage::getThumbnail( )
     }
     return thumbnail;
 }
+
+
 int VizualizatorImage::getAngleRotation() const
 {
+    if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__;
     return m_angleRotation;
 }
 
 void VizualizatorImage::setAngleRotation(int angleRotation)
 {
+    if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__;
     m_angleRotation = angleRotation;
 }
 bool VizualizatorImage::isFlipXaxis() const
 {
+    if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__;
     return m_flipXaxis;
 }
 
 void VizualizatorImage::setFlipXaxis(bool flipXaxis)
 {
+    if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__;
     m_flipXaxis = flipXaxis;
 }
 bool VizualizatorImage::isFlipYaxis() const
 {
+    if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__;
     return m_flipYaxis;
 }
 
 void VizualizatorImage::setFlipYaxis(bool flipYaxis)
 {
+    if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__;
     m_flipYaxis = flipYaxis;
 }
 
 QSize VizualizatorImage::getIconSize() const
 {
+    if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__;
     return m_iconSize;
 }
 
 void VizualizatorImage::setIconSize(const QSize &iconSize)
 {
+    if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__;
     m_iconSize = iconSize;
 }
 QString VizualizatorImage::getPathImage() const
 {
+    if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__;
     return m_pathImage;
 }
 
 void VizualizatorImage::setPathImage(const QString &pathImage)
 {
+    if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__;
     m_pathImage = pathImage;
 }
 qreal VizualizatorImage::getBrightnessValue() const
 {
+    if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__;
     return m_brightnessValue;
 }
 
 void VizualizatorImage::setBrightnessValue(const qreal &brightnessValue)
 {
+    if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__;
     m_brightnessValue = brightnessValue;
 }
 qreal VizualizatorImage::getContrastValue() const
 {
+    if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__;
     return m_contrastValue;
 }
 
 void VizualizatorImage::setContrastValue(const qreal &contrastValue)
 {
+    if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__;
     m_contrastValue = contrastValue;
 }
 
 void VizualizatorImage::exportToFile(QSettings *config)
 {
+    if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__;
     static const QMetaObject* meta = metaObject();
     for(int i = 0; i < meta->propertyCount(); ++i)
     {
@@ -212,6 +241,7 @@ void VizualizatorImage::exportToFile(QSettings *config)
 
 void VizualizatorImage::importFromFile(QSettings *config)
 {
+    if (m_localDebug) qDebug()<<__LINE__<<" ++++++++ " << __FUNCTION__;
     foreach(QString key, config->allKeys())
     {
         if(m_localDebug)
