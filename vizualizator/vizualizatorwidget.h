@@ -3,6 +3,10 @@
 
 #include <QApplication>
 #include <QDesktopWidget>
+#include <QDir>
+#include <QStandardPaths>
+#include <QFileDialog>
+#include <QDateTime>
 #include <QSize>
 #include <QWidget>
 #include <QLabel>
@@ -151,6 +155,10 @@ private slots:
     void on_vSBrightness_valueChanged(int value);
     
     void on_vSContrast_valueChanged(int value);
+
+    void on_btnSankore_clicked();
+
+    void on_btnSaveCurrentImage_clicked();
 
 private:
     bool m_localDebug;

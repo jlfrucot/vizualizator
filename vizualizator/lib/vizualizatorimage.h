@@ -1,15 +1,16 @@
 #ifndef VIZUALIZATORIMAGE_H
 #define VIZUALIZATORIMAGE_H
 
+#include <cmath>
 #include <QImage>
 #include <QSettings>
 #include <QMetaProperty>
 #include <QDebug>
 #include <QMatrix>
 #ifdef WITH_OPENCV2
+  #include <opencv2/core/core.hpp>
   #include <opencv2/highgui/highgui.hpp>
   #include <opencv2/imgproc/imgproc.hpp>
-  #include <opencv2/core/core.hpp>
 #endif
 
 ///
@@ -141,6 +142,7 @@ public:
     ///
     void importFromFile(QSettings *config);
 
+    cv::Mat rotateCvMAtImage(cv::Mat matOriginal, int angle = 0);
 private:
 
     ///
@@ -170,6 +172,9 @@ private:
     QString      m_pathImage;
     qreal        m_brightnessValue;
     qreal        m_contrastValue;
+
+
+
 signals:
 
 public slots:

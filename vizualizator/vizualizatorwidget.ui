@@ -698,6 +698,20 @@ QRadioButton{
                       </property>
                      </spacer>
                     </item>
+                    <item>
+                     <widget class="QPushButton" name="btnSaveCurrentImage">
+                      <property name="text">
+                       <string>Sauvegarder</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QPushButton" name="btnSankore">
+                      <property name="text">
+                       <string>Vers Sankoré</string>
+                      </property>
+                     </widget>
+                    </item>
                    </layout>
                   </item>
                  </layout>
