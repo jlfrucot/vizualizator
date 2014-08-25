@@ -202,6 +202,7 @@ private:
     void startCamera();
     void stopCamera();
 
+    QString saveCurrentImage();
 };
 
 /// @brief conversion de pointer void* en Qvariant et vice versa

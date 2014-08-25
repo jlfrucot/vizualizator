@@ -823,19 +823,31 @@ void VizualizatorWidget::on_btnSankore_clicked()
 
 void VizualizatorWidget::on_btnSaveCurrentImage_clicked()
 {
-    QString fileName = QFileDialog::getSaveFileName(this, trUtf8("Enregistrer l'image courante"),
-                               QStandardPaths::standardLocations(QStandardPaths::PicturesLocation).first(),
-                               tr("Images (*.jpg)"));
-    fileName +=".jpg";
-    if(ui->cbNativeImage->isChecked())
+    QString fileName = saveCurrentImage();
+    if(!fileName.isEmpty())
     {
-        m_currentImage->getOriginalImage().save(fileName);
-        m_currentImage->setPathImage(fileName);
-    }
-    else
-    {
-        m_currentImage->getModifiedImage().save(fileName);
+        if(ui->cbNativeImage->isChecked())
+        {
+            m_currentImage->getOriginalImage().save(fileName);
+        }
+        else
+        {
+            m_currentImage->getModifiedImage().save(fileName);
+        }
         m_currentImage->setPathImage(fileName);
     }
 }
 
+QString VizualizatorWidget::saveCurrentImage()
+{
+    if (m_localDebug) qDebug()<<__LINE__<<" +++ VizualizatorWidget" << __FUNCTION__;
+    QFileDialog dialog(this);
+    dialog.setWindowModality(Qt::WindowModal);
+    dialog.setAcceptMode(QFileDialog::AcceptSave);
+    dialog.setDirectory(QStandardPaths::standardLocations(QStandardPaths::PicturesLocation).first());
+    if(dialog.exec())
+    {
+        return dialog.selectedFiles().at(0);
+    }
+    return QString();
+}
